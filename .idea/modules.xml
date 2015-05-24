@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/MultipleImageSelect.iml" filepath="$PROJECT_DIR$/MultipleImageSelect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/multipleimageselect/multipleimageselect.iml" filepath="$PROJECT_DIR$/multipleimageselect/multipleimageselect.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/multipleimageselect.iml" filepath="$PROJECT_DIR$/app/multipleimageselect.iml" />
+    </modules>
+  </component>
+</project>
