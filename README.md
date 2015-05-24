@@ -16,8 +16,7 @@ Can be used from APK 11 onwards.
   </intent-filter>
 </activity>
 ```
-
-6. In the activity from where you want to call image selector, create Intent as follows:
+   In the activity from where you want to call image selector, create Intent as follows:
 ```java
 Intent intent = new Intent(this, AlbumSelectActivity.class);
 startActivityForResult(intent, 100);
@@ -37,7 +36,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 #Screenshots
 ![Alt text](https://github.com/darsh2/MultipleImageSelect/blob/master/multipleimageselect/src/main/res/drawable/screenshots/ss1.png?raw=true) ![Alt text](https://github.com/darsh2/MultipleImageSelect/blob/master/multipleimageselect/src/main/res/drawable/screenshots/ss2.png?raw=true) ![Alt text](https://github.com/darsh2/MultipleImageSelect/blob/master/multipleimageselect/src/main/res/drawable/screenshots/ss3.png?raw=true)
 #Acknowledgements
-This library makes use of [Picasso](https://github.com/square/picasso) by Sqaure Inc.
+This library makes use of [Picasso](https://github.com/square/picasso) by Square Inc.
 #License
 ```license
 Copyright 2015 Darshan Dorai
