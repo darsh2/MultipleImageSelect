@@ -3,15 +3,18 @@ package com.darsh.multipleimageselect.activities;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ProgressBar;
 
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.adapters.CustomAlbumSelectAdapter;
+import com.darsh.multipleimageselect.helpers.Constants;
 import com.darsh.multipleimageselect.models.Album;
 import com.darsh.multipleimageselect.models.Image;
 
@@ -26,7 +29,9 @@ public class AlbumSelectActivity extends AppCompatActivity {
     private HashMap<String, ArrayList<Image>> gallery;
     private ArrayList<Album> albums;
 
+    private ProgressBar progressBar;
     private GridView gridView;
+    private CustomAlbumSelectAdapter customAlbumSelectAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +39,16 @@ public class AlbumSelectActivity extends AppCompatActivity {
         setTitle("Select Photo Album");
         setContentView(R.layout.activity_album_select);
 
-        getImages();
+        Intent intent = getIntent();
+        if (intent == null) {
+            finish();
+        }
+        Constants.limit = intent.getIntExtra(Constants.INTENT_EXTRA_LIMIT, Constants.DEFAULT_LIMIT);
 
-        CustomAlbumSelectAdapter customAlbumSelectAdapter = new CustomAlbumSelectAdapter(getApplicationContext(), albums);
-
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
         gridView = (GridView) findViewById(R.id.grid_view_album_select);
-        gridView.setAdapter(customAlbumSelectAdapter);
-        gridView.setOnItemClickListener(aOnItemClickListener);
 
-        orientationBasedUI(getResources().getConfiguration().orientation);
+        new AlbumLoaderTask().execute();
     }
 
     @Override
@@ -55,7 +61,7 @@ public class AlbumSelectActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Intent intent = new Intent(getApplicationContext(), ImageSelectActivity.class);
-            intent.putParcelableArrayListExtra("images", gallery.get(albums.get(position).name));
+            intent.putParcelableArrayListExtra(Constants.INTENT_EXTRA_IMAGES, gallery.get(albums.get(position).name));
             intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
             startActivity(intent);
             finish();
@@ -71,6 +77,34 @@ public class AlbumSelectActivity extends AppCompatActivity {
 
     private void orientationBasedUI(int orientation) {
         gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 2 : 4);
+    }
+
+    private class AlbumLoaderTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            progressBar.setVisibility(View.VISIBLE);
+            gridView.setVisibility(View.INVISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            getImages();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            progressBar.setVisibility(View.INVISIBLE);
+            gridView.setVisibility(View.VISIBLE);
+
+            customAlbumSelectAdapter = new CustomAlbumSelectAdapter(getApplicationContext(), albums);
+            gridView.setAdapter(customAlbumSelectAdapter);
+            gridView.setOnItemClickListener(aOnItemClickListener);
+
+            orientationBasedUI(getResources().getConfiguration().orientation);
+            super.onPostExecute(aVoid);
+        }
     }
 
     private void getImages() {
