@@ -10,6 +10,9 @@
     <file url="file://$PROJECT_DIR$/multipleimageselect/src/main/res/drawable/image_placeholder.xml" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/multipleimageselect/src/main/res/menu/menu_contextual_action_bar.xml" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/multipleimageselect/src/main/res/values/colors.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/sample/src/main/res/drawable/screenshots/ss1.png" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/sample/src/main/res/drawable/screenshots/ss2.png" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/sample/src/main/res/drawable/screenshots/ss3.png" charset="windows-1252" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>
