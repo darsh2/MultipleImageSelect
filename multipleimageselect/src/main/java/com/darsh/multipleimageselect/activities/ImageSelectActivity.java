@@ -13,9 +13,11 @@ import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.adapters.CustomImageSelectAdapter;
+import com.darsh.multipleimageselect.helpers.Constants;
 import com.darsh.multipleimageselect.models.Image;
 
 import java.util.ArrayList;
@@ -37,8 +39,8 @@ public class ImageSelectActivity extends AppCompatActivity {
         final DisplayMetrics metrics = new DisplayMetrics();
         windowManager.getDefaultDisplay().getMetrics(metrics);
 
-        Intent receivedIntent = getIntent();
-        ArrayList<Image> images = receivedIntent.getParcelableArrayListExtra("images");
+        Intent intent = getIntent();
+        ArrayList<Image> images = intent.getParcelableArrayListExtra(Constants.INTENT_EXTRA_IMAGES);
 
         customImageSelectAdapter = new CustomImageSelectAdapter(getApplicationContext(), images);
 
@@ -85,6 +87,10 @@ public class ImageSelectActivity extends AppCompatActivity {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
             int i = item.getItemId();
             if (i == R.id.menu_item_add_image) {
+                if (customImageSelectAdapter.countSelected > Constants.limit) {
+                    Toast.makeText(getApplicationContext(), Constants.toastDisplayLimitExceed, Toast.LENGTH_LONG).show();
+                    return false;
+                }
                 sendIntent(customImageSelectAdapter.getSelectedImages());
                 return true;
             }
@@ -104,7 +110,7 @@ public class ImageSelectActivity extends AppCompatActivity {
     private void sendIntent(ArrayList<String> selectedImages) {
         Intent intent = new Intent();
         if (selectedImages != null) {
-            intent.putStringArrayListExtra("selectedImages", selectedImages);
+            intent.putStringArrayListExtra(Constants.INTENT_EXTRA_IMAGES, selectedImages);
             setResult(RESULT_OK, intent);
         } else {
             setResult(RESULT_CANCELED, intent);

@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat">
+    <style name="MultipleImageSelectTheme" parent="Theme.AppCompat">
         <!-- Customize your theme here. -->
     </style>
 

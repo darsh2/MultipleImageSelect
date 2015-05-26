@@ -59,7 +59,13 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
         imageView.getLayoutParams().width = width;
         imageView.getLayoutParams().height = height;
 
-        ((FrameLayout) convertView).setForeground(arrayList.get(position).isSelected ? context.getResources().getDrawable(R.drawable.highlight_image_view) : null);
+        if (arrayList.get(position).isSelected) {
+            imageView.setAlpha((float) 0.5);
+            ((FrameLayout) convertView).setForeground(context.getResources().getDrawable(R.drawable.ic_cab_done_mtrl_alpha));
+        } else {
+            imageView.setAlpha((float) 1.0);
+            ((FrameLayout) convertView).setForeground(null);
+        }
 
         File file = new File(arrayList.get(position).imagePath);
         Picasso.with(context).load(file).placeholder(R.drawable.image_placeholder).fit().centerCrop().into(imageView);

@@ -7,7 +7,7 @@
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/MultipleImageSelectTheme" >
         <activity
             android:name=".activities.AlbumSelectActivity"
             android:label="@string/app_name" >
