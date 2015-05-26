@@ -1,1 +1,1 @@
-include ':multipleimageselect'
+include ':multipleimageselect', ':sample'
