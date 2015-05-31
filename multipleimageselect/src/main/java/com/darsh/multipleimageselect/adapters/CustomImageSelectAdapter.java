@@ -1,10 +1,8 @@
 package com.darsh.multipleimageselect.adapters;
 
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -20,7 +18,7 @@ import java.util.ArrayList;
  * Created by Darshan on 4/18/2015.
  */
 public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
-    public int countSelected;
+    private int countSelected;
 
     public CustomImageSelectAdapter(Context context, ArrayList<Image> images) {
         super(context, images);
@@ -42,20 +40,6 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
 
         convertView.setTag(R.id.image_view_image_select, imageView);
 
-        final WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        final DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getMetrics(metrics);
-
-        int width;
-        int height;
-        if (metrics.widthPixels < metrics.heightPixels) {
-            width = (metrics.widthPixels - 4) / 3;
-            height = (metrics.widthPixels - 4) / 3;
-        } else {
-            width = (metrics.widthPixels - 6) / 5;
-            height = (metrics.widthPixels - 6) / 5;
-        }
-
         imageView.getLayoutParams().width = width;
         imageView.getLayoutParams().height = height;
 
@@ -74,12 +58,22 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
     }
 
     public void toggleSelection(int position, boolean isSelected) {
-        if (arrayList.get(position).isSelected) {
-            countSelected--;
-        } else {
-            countSelected++;
-        }
         arrayList.get(position).isSelected = isSelected;
+        if (arrayList.get(position).isSelected) {
+            countSelected++;
+        } else {
+            countSelected--;
+        }
+        this.notifyDataSetChanged();
+    }
+
+    public void addAll(ArrayList<Image> arrayList) {
+        if (this.arrayList != null) {
+            this.arrayList.clear();
+            this.arrayList = null;
+        }
+
+        this.arrayList = arrayList;
         this.notifyDataSetChanged();
     }
 
@@ -99,5 +93,9 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
         }
 
         return selectedImages;
+    }
+
+    public int getCountSelected() {
+        return countSelected;
     }
 }

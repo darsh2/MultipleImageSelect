@@ -1,10 +1,8 @@
 package com.darsh.multipleimageselect.adapters;
 
 import android.content.Context;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,20 +43,6 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         viewHolder.imageView.setTag(position);
         viewHolder.textView.setTag(position);
 
-        final WindowManager windowManager = (WindowManager) viewHolder.imageView.getContext().getSystemService(Context.WINDOW_SERVICE);
-        final DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getMetrics(metrics);
-
-        int width;
-        int height;
-        if (metrics.widthPixels < metrics.heightPixels) {
-            width = (metrics.widthPixels - 3) / 2;
-            height = (metrics.widthPixels - 3) / 2;
-        } else {
-            width = (metrics.widthPixels - 5) / 4;
-            height = (metrics.widthPixels - 5) / 4;
-        }
-
         viewHolder.imageView.getLayoutParams().width = width;
         viewHolder.imageView.getLayoutParams().height = height;
 
@@ -68,6 +52,17 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         Picasso.with(convertView.getContext()).load(file).fit().centerCrop().into(viewHolder.imageView);
 
         return convertView;
+    }
+
+    public void addAll(ArrayList<Album> arrayList) {
+        if (this.arrayList != null) {
+            this.arrayList.clear();
+            this.arrayList.addAll(arrayList);
+            this.notifyDataSetChanged();
+        } else {
+            this.arrayList = arrayList;
+            this.notifyDataSetChanged();
+        }
     }
 
     private class ViewHolder {
