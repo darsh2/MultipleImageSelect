@@ -14,6 +14,9 @@ public abstract class CustomGenericAdapter<T> extends BaseAdapter {
     protected Context context;
     protected LayoutInflater layoutInflater;
 
+    protected int width;
+    protected int height;
+
     public CustomGenericAdapter(Context context, ArrayList<T> arrayList) {
         this.arrayList = arrayList;
         this.context = context;
@@ -32,5 +35,10 @@ public abstract class CustomGenericAdapter<T> extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return position;
+    }
+
+    public void setLayoutParams(int width, int height) {
+        this.width = width;
+        this.height = height;
     }
 }
