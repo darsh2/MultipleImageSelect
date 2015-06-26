@@ -57,8 +57,8 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
         return convertView;
     }
 
-    public void toggleSelection(int position, boolean isSelected) {
-        arrayList.get(position).isSelected = isSelected;
+    public void toggleSelection(int position) {
+        arrayList.get(position).isSelected = !arrayList.get(position).isSelected;
         if (arrayList.get(position).isSelected) {
             countSelected++;
         } else {

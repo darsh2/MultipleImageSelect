@@ -75,11 +75,6 @@ public class ImageSelectActivity extends AppCompatActivity {
             }
         };
         getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, contentObserver);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         loadImages();
     }
 
@@ -108,7 +103,7 @@ public class ImageSelectActivity extends AppCompatActivity {
     private AbsListView.MultiChoiceModeListener multiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
-            customImageSelectAdapter.toggleSelection(position, checked);
+            customImageSelectAdapter.toggleSelection(position);
             mode.setTitle(String.valueOf(customImageSelectAdapter.getCountSelected()) + " selected");
         }
 
@@ -226,13 +221,9 @@ public class ImageSelectActivity extends AppCompatActivity {
         }
 
         images = new ArrayList<>();
-        String[] projection = new String[]{ MediaStore.Images.Media.DATA };
-        String selection = "bucket_display_name = ?";
-        String[] selectionArgs = new String[]{ album };
-        String sortOrder = MediaStore.Images.Media.DATE_ADDED;
-        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, sortOrder);
-        if (cursor.getCount() > 0) {
-            cursor.moveToLast();
+        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{ MediaStore.Images.Media.DATA },
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?", new String[]{ album }, MediaStore.Images.Media.DATE_ADDED);
+        if (cursor.moveToLast()) {
             do {
                 String image = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
                 if (new File(image).exists()) {
