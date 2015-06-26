@@ -53,6 +53,7 @@ This library makes use of [Picasso](https://github.com/square/picasso) by Square
 #License
 ```license
 Copyright 2015 Darshan Dorai
+Copyright 2013 Square, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
