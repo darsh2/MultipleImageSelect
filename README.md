@@ -5,11 +5,19 @@ can be selected. Can be used in apps with APK 11 onwards.
 
 Sample app can be found [here](https://github.com/darsh2/MultipleImageSelect/tree/master/sample) 
 #Usage
-1. Download this project repository as a zip. Extract it.
-2. In Android Studio, select File > New > Import Module > Enter path to extracted project.
-3. Sync changes in gradle build.
-4. In project module's build.gradle file add under dependencies: compile project(':multipleimageselect'). Sync changes.
-5. In project's AndroidManifest.xml, add the following under application node:
+Include this library in your project using gradle (thanks to [JitPack.io](https://github.com/jitpack-io)).
+```gradle
+repositories {
+  maven {
+    url "https://jitpack.io"
+  }
+}
+
+dependencies {
+  compile 'com.github.darsh2:MultipleImageSelect:9aa3325c0b'
+}
+```
+In project's AndroidManifest.xml, add the following under application node:
 ```xml
 <activity
   android:name="com.darsh.multipleimageselect.activities.AlbumSelectActivity"
