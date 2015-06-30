@@ -14,7 +14,7 @@ repositories {
 }
 
 dependencies {
-  compile 'com.github.darsh2:MultipleImageSelect:9aa3325c0b'
+  compile 'com.github.darsh2:MultipleImageSelect:v0.0.1'
 }
 ```
 In project's AndroidManifest.xml, add the following under application node:
