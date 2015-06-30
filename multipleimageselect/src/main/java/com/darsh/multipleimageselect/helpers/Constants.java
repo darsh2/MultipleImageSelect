@@ -6,6 +6,9 @@ package com.darsh.multipleimageselect.helpers;
 public class Constants {
     public static final int REQUEST_CODE = 2000;
 
+    public static final int FETCH_STARTED = 2001;
+    public static final int FETCH_COMPLETED = 2002;
+
     public static final String INTENT_EXTRA_ALBUM = "album";
     public static final String INTENT_EXTRA_IMAGES = "images";
     public static final String INTENT_EXTRA_LIMIT = "limit";
