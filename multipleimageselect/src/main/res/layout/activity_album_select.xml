@@ -2,6 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
+    <include
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/toolbar"/>
+
     <ProgressBar
         android:id="@+id/progress_bar_album_select"
         android:layout_width="wrap_content"
@@ -13,12 +19,13 @@
         android:id="@+id/grid_view_album_select"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"
         android:paddingTop="1dp"
         android:paddingBottom="1dp"
         android:paddingLeft="1dp"
         android:paddingRight="1dp"
-        android:horizontalSpacing="1dp"
-        android:verticalSpacing="1dp"
-        android:stretchMode="columnWidth"/>
+        android:stretchMode="columnWidth"
+        android:scrollbarThumbVertical="@drawable/scrollbar"
+        android:scrollbarSize="4dp"/>
 
 </RelativeLayout>
