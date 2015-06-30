@@ -43,8 +43,8 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         viewHolder.imageView.setTag(position);
         viewHolder.textView.setTag(position);
 
-        viewHolder.imageView.getLayoutParams().width = width;
-        viewHolder.imageView.getLayoutParams().height = height;
+        viewHolder.imageView.getLayoutParams().width = size;
+        viewHolder.imageView.getLayoutParams().height = size;
 
         Album album = getItem(position);
         viewHolder.textView.setText(album.name);
@@ -54,15 +54,10 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         return convertView;
     }
 
-    public void addAll(ArrayList<Album> arrayList) {
-        if (this.arrayList != null) {
-            this.arrayList.clear();
-            this.arrayList.addAll(arrayList);
-            this.notifyDataSetChanged();
-        } else {
-            this.arrayList = arrayList;
-            this.notifyDataSetChanged();
-        }
+    public void update(ArrayList<Album> albums) {
+        arrayList.clear();
+        arrayList.addAll(albums);
+        this.notifyDataSetChanged();
     }
 
     private class ViewHolder {

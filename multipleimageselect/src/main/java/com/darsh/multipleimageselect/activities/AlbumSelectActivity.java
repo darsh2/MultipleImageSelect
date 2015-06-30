@@ -6,11 +6,13 @@ import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.os.Process;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowManager;
@@ -38,13 +40,20 @@ public class AlbumSelectActivity extends AppCompatActivity {
     private CustomAlbumSelectAdapter customAlbumSelectAdapter;
 
     private ContentObserver contentObserver;
-    private Handler handler;
+    private static Handler handler;
+
+    private AlbumLoaderThread albumLoaderThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Select Photo Album");
         setContentView(R.layout.activity_album_select);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.album_view);
+        }
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -54,16 +63,44 @@ public class AlbumSelectActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar_album_select);
         gridView = (GridView) findViewById(R.id.grid_view_album_select);
+        gridView.setOnItemClickListener(onItemClickListener);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        /*
-        Create and register content observer for observing changes in MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-         */
-        handler = new Handler();
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case Constants.FETCH_STARTED: {
+                        progressBar.setVisibility(View.VISIBLE);
+                        gridView.setVisibility(View.INVISIBLE);
+                        break;
+                    }
+
+                    case Constants.FETCH_COMPLETED: {
+                        if (customAlbumSelectAdapter == null) {
+                            customAlbumSelectAdapter = new CustomAlbumSelectAdapter(getApplicationContext(), albums);
+                            gridView.setAdapter(customAlbumSelectAdapter);
+
+                            progressBar.setVisibility(View.INVISIBLE);
+                            gridView.setVisibility(View.VISIBLE);
+                            orientationBasedUI(getResources().getConfiguration().orientation);
+
+                        } else {
+                            customAlbumSelectAdapter.update(albums);
+                        }
+                        break;
+                    }
+
+                    default: {
+                        super.handleMessage(msg);
+                    }
+                }
+            }
+        };
         contentObserver = new ContentObserver(handler) {
             @Override
             public void onChange(boolean selfChange, Uri uri) {
@@ -71,11 +108,7 @@ public class AlbumSelectActivity extends AppCompatActivity {
             }
         };
         getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, contentObserver);
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
         loadAlbums();
     }
 
@@ -83,13 +116,13 @@ public class AlbumSelectActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        /*
-        Unregister content observer
-         */
+        abortLoading();
+
         getContentResolver().unregisterContentObserver(contentObserver);
+        contentObserver = null;
+
         handler.removeCallbacksAndMessages(null);
         handler = null;
-        contentObserver = null;
     }
 
     @Override
@@ -98,7 +131,24 @@ public class AlbumSelectActivity extends AppCompatActivity {
         orientationBasedUI(newConfig.orientation);
     }
 
-    private AdapterView.OnItemClickListener aOnItemClickListener = new AdapterView.OnItemClickListener() {
+    private void orientationBasedUI(int orientation) {
+        final WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        final DisplayMetrics metrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(metrics);
+
+        int size = orientation == Configuration.ORIENTATION_PORTRAIT ? metrics.widthPixels / 2 : metrics.widthPixels / 4;
+        customAlbumSelectAdapter.setLayoutParams(size);
+        gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 2 : 4);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
+    private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Intent intent = new Intent(getApplicationContext(), ImageSelectActivity.class);
@@ -109,94 +159,78 @@ public class AlbumSelectActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        setResult(RESULT_CANCELED);
-        finish();
-    }
-
-    private void orientationBasedUI(int orientation) {
-        final WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        final DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getMetrics(metrics);
-
-        int width;
-        int height;
-        if (metrics.widthPixels < metrics.heightPixels) {
-            width = (metrics.widthPixels - 3) / 2;
-            height = (metrics.widthPixels - 3) / 2;
-        } else {
-            width = (metrics.widthPixels - 5) / 4;
-            height = (metrics.widthPixels - 5) / 4;
-        }
-        customAlbumSelectAdapter.setLayoutParams(width, height);
-        gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 2 : 4);
-    }
-
     private void loadAlbums() {
-        new AlbumLoaderTask().execute();
+        abortLoading();
+
+        albumLoaderThread = new AlbumLoaderThread();
+        albumLoaderThread.start();
     }
 
-    private class AlbumLoaderTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-            gridView.setVisibility(View.INVISIBLE);
-            super.onPreExecute();
+    private void abortLoading() {
+        if (albumLoaderThread == null) {
+            return;
         }
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            getImages();
-            return null;
+        albumLoaderThread.interrupt();
+        try {
+            albumLoaderThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+    }
 
+    private class AlbumLoaderThread extends Thread {
         @Override
-        protected void onPostExecute(Void aVoid) {
-            progressBar.setVisibility(View.INVISIBLE);
-            gridView.setVisibility(View.VISIBLE);
+        public void run() {
+            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
+            Message message;
             if (customAlbumSelectAdapter == null) {
-                customAlbumSelectAdapter = new CustomAlbumSelectAdapter(getApplicationContext(), albums);
-            } else {
-                customAlbumSelectAdapter.addAll(albums);
+                message = handler.obtainMessage();
+                message.what = Constants.FETCH_STARTED;
+                message.sendToTarget();
             }
-            gridView.setAdapter(customAlbumSelectAdapter);
-            gridView.setOnItemClickListener(aOnItemClickListener);
 
-            orientationBasedUI(getResources().getConfiguration().orientation);
-            super.onPostExecute(aVoid);
+            if (Thread.interrupted()) {
+                return;
+            }
+
+            albums = new ArrayList<>();
+            HashSet<String> albumSet = new HashSet<>();
+            File file;
+            Cursor cursor = getApplicationContext().getContentResolver().
+                    query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{ MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.DATA},
+                            null, null, MediaStore.Images.Media.DATE_ADDED);
+            if (cursor.moveToLast()) {
+                do {
+                    if (Thread.interrupted()) {
+                        return;
+                    }
+
+                    String album = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME));
+                    String image = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+
+                    /**
+                     * It may happen that some image file paths are still present in cache,
+                     * though image file does not exist. These last as long as media
+                     * scanner is not run again. To avoid get such image file paths, check
+                     * if image file exists.
+                     */
+                    file = new File(image);
+                    if (file.exists() && !albumSet.contains(album)) {
+                        albums.add(new Album(album, image));
+                        albumSet.add(album);
+                    }
+
+                } while (cursor.moveToPrevious());
+            }
+            cursor.close();
+
+            message = handler.obtainMessage();
+            message.what = Constants.FETCH_COMPLETED;
+            message.sendToTarget();
+
+            Thread.interrupted();
         }
     }
-
-    private void getImages() {
-        HashSet<String> hashSet = new HashSet<>();
-        albums = new ArrayList<>();
-
-        String[] projection = { MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME, MediaStore.Images.ImageColumns.DATA, MediaStore.Images.ImageColumns.DATE_ADDED };
-        String orderBy = MediaStore.Images.ImageColumns.DATE_ADDED;
-
-        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, orderBy);
-        if (cursor.getCount() > 0) {
-            cursor.moveToLast();
-            do {
-                String album = cursor.getString(cursor.getColumnIndex(MediaStore.Images.ImageColumns.BUCKET_DISPLAY_NAME));
-                String image = cursor.getString(cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA));
-
-                /**
-                 * It may happen that some image file paths are still present in cache,
-                 * though image file does not exist. These last as long as media
-                 * scanner is not run again. To avoid get such image file paths, check
-                 * if image file exists.
-                 */
-                if (new File(image).exists() && !hashSet.contains(album)) {
-                    albums.add(new Album(album, image));
-                    hashSet.add(album);
-                }
-            } while (cursor.moveToPrevious());
-        }
-        cursor.close();
-    }
-
 }

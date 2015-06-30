@@ -5,12 +5,13 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.ContentObserver;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.os.Process;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -43,14 +45,22 @@ public class ImageSelectActivity extends AppCompatActivity {
     private ArrayList<Image> images;
     private String album;
 
+    private ActionMode actionMode;
+
     private ContentObserver contentObserver;
-    private Handler handler;
+    private static Handler handler;
+    private ImageLoaderThread imageLoaderThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Select images");
         setContentView(R.layout.activity_image_select);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(R.string.image_view);
+        }
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -60,32 +70,82 @@ public class ImageSelectActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar_image_select);
         gridView = (GridView) findViewById(R.id.grid_view_image_select);
+        gridView.setOnItemClickListener(onItemClickListener);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        handler = new Handler();
+        handler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    case Constants.FETCH_STARTED: {
+                        progressBar.setVisibility(View.VISIBLE);
+                        gridView.setVisibility(View.INVISIBLE);
+                        break;
+                    }
+
+                    case Constants.FETCH_COMPLETED: {
+
+                        /**
+                         * If adapter is null, this implies that the loaded images will be shown
+                         * for the first time, hence send FETCH_COMPLETED message.
+                         * However, if adapter has been initialised, this thread was run either
+                         * due to the activity being restarted or content being changed.
+                         */
+                        if (customImageSelectAdapter == null) {
+                            customImageSelectAdapter = new CustomImageSelectAdapter(getApplicationContext(), images);
+                            gridView.setAdapter(customImageSelectAdapter);
+
+                            progressBar.setVisibility(View.INVISIBLE);
+                            gridView.setVisibility(View.VISIBLE);
+                            orientationBasedUI(getResources().getConfiguration().orientation);
+
+                        } else {
+                            customImageSelectAdapter.update(images);
+
+                            /**
+                             * Some selected images may have been deleted
+                             * hence update action mode title
+                             */
+                            if (actionMode != null) {
+                                actionMode.setTitle(customImageSelectAdapter.countSelected + " " + getString(R.string.selected));
+                            }
+                        }
+
+                        break;
+                    }
+
+                    default: {
+                        super.handleMessage(msg);
+                    }
+                }
+            }
+        };
         contentObserver = new ContentObserver(handler) {
             @Override
-            public void onChange(boolean selfChange, Uri uri) {
-                super.onChange(selfChange, uri);
-                loadImages();
+            public void onChange(boolean selfChange) {
+                startImageLoading();
             }
         };
         getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, contentObserver);
-        loadImages();
+
+        startImageLoading();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
 
+        abortImageLoading();
+
         getContentResolver().unregisterContentObserver(contentObserver);
+        contentObserver = null;
+
         handler.removeCallbacksAndMessages(null);
         handler = null;
-        contentObserver = null;
     }
 
     @Override
@@ -94,23 +154,44 @@ public class ImageSelectActivity extends AppCompatActivity {
         orientationBasedUI(newConfig.orientation);
     }
 
+    private void orientationBasedUI(int orientation) {
+        final WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+        final DisplayMetrics metrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(metrics);
+
+        int size  = orientation == Configuration.ORIENTATION_PORTRAIT ? metrics.widthPixels / 3 : metrics.widthPixels / 5;
+        customImageSelectAdapter.setLayoutParams(size);
+        gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 3 : 5);
+    }
+
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         sendIntent(null);
     }
 
-    private AbsListView.MultiChoiceModeListener multiChoiceModeListener = new AbsListView.MultiChoiceModeListener() {
+    private AbsListView.OnItemClickListener onItemClickListener = new AbsListView.OnItemClickListener() {
         @Override
-        public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            if (actionMode == null) {
+                actionMode = ImageSelectActivity.this.startActionMode(callback);
+            }
             customImageSelectAdapter.toggleSelection(position);
-            mode.setTitle(String.valueOf(customImageSelectAdapter.getCountSelected()) + " selected");
-        }
+            actionMode.setTitle(customImageSelectAdapter.countSelected + " " + getString(R.string.selected));
 
+            if (customImageSelectAdapter.countSelected == 0) {
+                actionMode.finish();
+            }
+        }
+    };
+
+    private ActionMode.Callback callback = new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             MenuInflater menuInflater = mode.getMenuInflater();
             menuInflater.inflate(R.menu.menu_contextual_action_bar, menu);
+
+            actionMode = mode;
+
             return true;
         }
 
@@ -120,14 +201,15 @@ public class ImageSelectActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            int i = item.getItemId();
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {int i = item.getItemId();
             if (i == R.id.menu_item_add_image) {
-                if (customImageSelectAdapter.getCountSelected() > Constants.limit) {
+                if (customImageSelectAdapter.countSelected > Constants.limit) {
                     Toast.makeText(getApplicationContext(), Constants.toastDisplayLimitExceed, Toast.LENGTH_LONG).show();
+
                     return false;
                 }
                 sendIntent(customImageSelectAdapter.getSelectedImages());
+
                 return true;
             }
             return false;
@@ -136,29 +218,9 @@ public class ImageSelectActivity extends AppCompatActivity {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             customImageSelectAdapter.deselectAll();
+            actionMode = null;
         }
     };
-
-    private void orientationBasedUI(int orientation) {
-        /*
-        Set width and height for image view
-         */
-        final WindowManager windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-        final DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getMetrics(metrics);
-
-        int width;
-        int height;
-        if (metrics.widthPixels < metrics.heightPixels) {
-            width = (metrics.widthPixels - 4) / 3;
-            height = (metrics.widthPixels - 4) / 3;
-        } else {
-            width = (metrics.widthPixels - 6) / 5;
-            height = (metrics.widthPixels - 6) / 5;
-        }
-        customImageSelectAdapter.setLayoutParams(width, height);
-        gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 3 : 5);
-    }
 
     private void sendIntent(ArrayList<String> selectedImages) {
         Intent intent = new Intent();
@@ -171,66 +233,84 @@ public class ImageSelectActivity extends AppCompatActivity {
         finish();
     }
 
-    private void loadImages() {
-        new ImageLoaderTask().execute();
+    private void startImageLoading() {
+        abortImageLoading();
+
+        imageLoaderThread = new ImageLoaderThread();
+        imageLoaderThread.start();
     }
 
-    private class ImageLoaderTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected void onPreExecute() {
-            progressBar.setVisibility(View.VISIBLE);
-            gridView.setVisibility(View.INVISIBLE);
-            super.onPreExecute();
+    private void abortImageLoading() {
+        //No thread is running
+        if (imageLoaderThread == null) {
+            return;
         }
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            getImagesInAlbum();
-            return null;
+        //Interrupt thread if running and wait till it joins
+        imageLoaderThread.interrupt();
+        try {
+            imageLoaderThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+    }
 
+    private class ImageLoaderThread extends Thread {
         @Override
-        protected void onPostExecute(Void aVoid) {
-            progressBar.setVisibility(View.INVISIBLE);
-            gridView.setVisibility(View.VISIBLE);
+        public void run() {
+            android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
+            Message message;
             if (customImageSelectAdapter == null) {
-                customImageSelectAdapter = new CustomImageSelectAdapter(getApplicationContext(), images);
-                gridView.setAdapter(customImageSelectAdapter);
-                gridView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE_MODAL);
-                gridView.setMultiChoiceModeListener(multiChoiceModeListener);
-            } else {
-                customImageSelectAdapter.addAll(images);
+                message = handler.obtainMessage();
+                /**
+                 * If the adapter is null, this is first time this activity's view is
+                 * being shown, hence send FETCH_STARTED message to show progress bar
+                 * while images are loaded from phone
+                 */
+                message.what = Constants.FETCH_STARTED;
+                message.sendToTarget();
             }
-            gridView.setAdapter(customImageSelectAdapter);
 
-            orientationBasedUI(getResources().getConfiguration().orientation);
-            super.onPostExecute(aVoid);
-        }
-    }
+            if (Thread.interrupted()) {
+                return;
+            }
 
-    private void getImagesInAlbum() {
-        HashSet<String> selectedImages = new HashSet<>();
-        if (customImageSelectAdapter != null) {
-            ArrayList<String> arrayList = customImageSelectAdapter.getSelectedImages();
-            if (arrayList != null) {
-                for (String image : arrayList) {
-                    selectedImages.add(image);
+            File file;
+            HashSet<String> selectedImages = new HashSet<>();
+            if (images != null) {
+                for (Image image : images) {
+                    file = new File(image.imagePath);
+                    if (file.exists() && image.isSelected) {
+                        selectedImages.add(image.imagePath);
+                    }
                 }
             }
-        }
 
-        images = new ArrayList<>();
-        Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{ MediaStore.Images.Media.DATA },
-                MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?", new String[]{ album }, MediaStore.Images.Media.DATE_ADDED);
-        if (cursor.moveToLast()) {
-            do {
-                String image = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                if (new File(image).exists()) {
-                    images.add(new Image(image, selectedImages.contains(image)));
-                }
-            } while (cursor.moveToPrevious());
+            images = new ArrayList<>();
+            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{ MediaStore.Images.Media.DATA },
+                    MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?", new String[]{ album }, MediaStore.Images.Media.DATE_ADDED);
+            if (cursor.moveToLast()) {
+                do {
+                    if (Thread.interrupted()) {
+                        return;
+                    }
+
+                    String image = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+                    file = new File(image);
+                    if (file.exists()) {
+                        images.add(new Image(image, selectedImages.contains(image)));
+                    }
+
+                } while (cursor.moveToPrevious());
+            }
+            cursor.close();
+
+            message = handler.obtainMessage();
+            message.what = Constants.FETCH_COMPLETED;
+            message.sendToTarget();
+
+            Thread.interrupted();
         }
-        cursor.close();
     }
 }

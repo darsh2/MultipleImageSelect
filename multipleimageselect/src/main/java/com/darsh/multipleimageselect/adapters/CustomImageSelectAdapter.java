@@ -18,7 +18,7 @@ import java.util.ArrayList;
  * Created by Darshan on 4/18/2015.
  */
 public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
-    private int countSelected;
+    public int countSelected;
 
     public CustomImageSelectAdapter(Context context, ArrayList<Image> images) {
         super(context, images);
@@ -40,8 +40,8 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
 
         convertView.setTag(R.id.image_view_image_select, imageView);
 
-        imageView.getLayoutParams().width = width;
-        imageView.getLayoutParams().height = height;
+        imageView.getLayoutParams().width = size;
+        imageView.getLayoutParams().height = size;
 
         if (arrayList.get(position).isSelected) {
             imageView.setAlpha((float) 0.5);
@@ -67,13 +67,18 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
         this.notifyDataSetChanged();
     }
 
-    public void addAll(ArrayList<Image> arrayList) {
-        if (this.arrayList != null) {
-            this.arrayList.clear();
-            this.arrayList = null;
+    public void update(ArrayList<Image> images) {
+        arrayList.clear();
+        arrayList.addAll(images);
+
+        //update number of selected images
+        countSelected = 0;
+        for (Image image : arrayList) {
+            if (image.isSelected) {
+                countSelected++;
+            }
         }
 
-        this.arrayList = arrayList;
         this.notifyDataSetChanged();
     }
 
@@ -93,9 +98,5 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
         }
 
         return selectedImages;
-    }
-
-    public int getCountSelected() {
-        return countSelected;
     }
 }
