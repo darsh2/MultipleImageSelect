@@ -45,7 +45,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 }
 ```
 #Screenshots
-![Alt text](https://github.com/darsh2/MultipleImageSelect/blob/master/sample/src/main/res/drawable/screenshots/ss1.png?raw=true) ![Alt text](https://github.com/darsh2/MultipleImageSelect/blob/master/sample/src/main/res/drawable/screenshots/ss2.png?raw=true) ![Alt text](https://github.com/darsh2/MultipleImageSelect/blob/master/sample/src/main/res/drawable/screenshots/ss3.png?raw=true)
+![Alt text](https://github.com/darsh2/MultipleImageSelect/tree/master/screenshots/ss1.png?raw=true) ![Alt text](https://github.com/darsh2/MultipleImageSelect/tree/master/screenshots/ss2.png?raw=true) ![Alt text](https://github.com/darsh2/MultipleImageSelect/tree/master/screenshots/ss3.png?raw=true)
 #Similar Projects
 Similar libraries can be found [here](https://android-arsenal.com/tag/157)
 #Acknowledgements
