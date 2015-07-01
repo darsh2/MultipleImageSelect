@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.models.Album;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         Album album = getItem(position);
         viewHolder.textView.setText(album.name);
         File file = new File(album.imagePath);
-        Picasso.with(convertView.getContext()).load(file).fit().centerCrop().into(viewHolder.imageView);
+        Glide.with(convertView.getContext()).load(file).centerCrop().into(viewHolder.imageView);
 
         return convertView;
     }
