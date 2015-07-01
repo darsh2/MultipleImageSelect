@@ -49,7 +49,7 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         Album album = getItem(position);
         viewHolder.textView.setText(album.name);
         File file = new File(album.imagePath);
-        Glide.with(convertView.getContext()).load(file).into(viewHolder.imageView);
+        Glide.with(convertView.getContext()).load(file).centerCrop().into(viewHolder.imageView);
 
         return convertView;
     }
