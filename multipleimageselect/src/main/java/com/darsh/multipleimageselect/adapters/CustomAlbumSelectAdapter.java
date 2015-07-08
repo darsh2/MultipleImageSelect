@@ -49,7 +49,7 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         Album album = getItem(position);
         viewHolder.textView.setText(album.name);
         File file = new File(album.imagePath);
-        Picasso.with(convertView.getContext()).load(file).fit().centerCrop().into(viewHolder.imageView);
+        Picasso.with(context).load(file).fit().centerCrop().into(viewHolder.imageView);
 
         return convertView;
     }
@@ -60,7 +60,7 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         this.notifyDataSetChanged();
     }
 
-    private class ViewHolder {
+    private static class ViewHolder {
         protected ImageView imageView;
         protected TextView textView;
     }
