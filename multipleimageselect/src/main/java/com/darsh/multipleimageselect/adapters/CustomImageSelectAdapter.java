@@ -9,7 +9,7 @@ import android.widget.ImageView;
 
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.models.Image;
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
         }
 
         File file = new File(arrayList.get(position).imagePath);
-        Picasso.with(context).load(file).placeholder(R.drawable.image_placeholder).fit().centerCrop().into(imageView);
+        Glide.with(context).load(file).placeholder(R.drawable.image_placeholder).into(imageView);
 
         return convertView;
     }
