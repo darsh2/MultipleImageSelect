@@ -10,10 +10,6 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.models.Image;
-<<<<<<< HEAD
-=======
-import com.bumptech.glide.Glide;
->>>>>>> origin/develop
 
 import java.util.ArrayList;
 
@@ -52,14 +48,9 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
             ((FrameLayout) convertView).setForeground(null);
         }
 
-<<<<<<< HEAD
         Glide.with(context)
                 .load(arrayList.get(position).path)
                 .placeholder(R.drawable.image_placeholder).centerCrop().into(imageView);
-=======
-        File file = new File(arrayList.get(position).imagePath);
-        Glide.with(context).load(file).placeholder(R.drawable.image_placeholder).into(imageView);
->>>>>>> origin/develop
 
         return convertView;
     }
