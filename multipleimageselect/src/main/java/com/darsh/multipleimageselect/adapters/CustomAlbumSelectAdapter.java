@@ -9,6 +9,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.models.Album;
+<<<<<<< HEAD
+=======
+import com.bumptech.glide.Glide;
+>>>>>>> origin/develop
 
 import java.util.ArrayList;
 
@@ -42,10 +46,17 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
         viewHolder.imageView.getLayoutParams().width = size;
         viewHolder.imageView.getLayoutParams().height = size;
 
+<<<<<<< HEAD
         viewHolder.textView.setText(arrayList.get(position).name);
         Glide.with(context)
                 .load(arrayList.get(position).cover)
                 .placeholder(R.drawable.image_placeholder).centerCrop().into(viewHolder.imageView);
+=======
+        Album album = getItem(position);
+        viewHolder.textView.setText(album.name);
+        File file = new File(album.imagePath);
+        Glide.with(context).load(file).into(viewHolder.imageView);
+>>>>>>> origin/develop
 
         return convertView;
     }
