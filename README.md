@@ -51,11 +51,10 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 #Similar Projects
 Similar libraries can be found [here](https://android-arsenal.com/tag/157)
 #Acknowledgements
-This library makes use of [Picasso](https://github.com/square/picasso) by Square Inc.
+This library makes use of [Glide](https://github.com/bumptech/glide) by Bump Technologies.
 #License
 ```license
 Copyright 2015 Darshan Dorai
-Copyright 2013 Square, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

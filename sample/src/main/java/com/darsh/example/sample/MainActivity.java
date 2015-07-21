@@ -1,7 +1,6 @@
 package com.darsh.example.sample;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -10,9 +9,9 @@ import android.widget.TextView;
 
 import com.darsh.multipleimageselect.activities.AlbumSelectActivity;
 import com.darsh.multipleimageselect.helpers.Constants;
+import com.darsh.multipleimageselect.models.Image;
 
 import java.util.ArrayList;
-
 
 public class MainActivity extends AppCompatActivity {
     private TextView textView;
@@ -32,10 +31,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == Constants.REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            ArrayList<String> images = data.getStringArrayListExtra(Constants.INTENT_EXTRA_IMAGES);
+            ArrayList<Image> images = data.getParcelableArrayListExtra(Constants.INTENT_EXTRA_IMAGES);
             StringBuffer stringBuffer = new StringBuffer();
-            for (String image : images) {
-                stringBuffer.append(image + "\n");
+            for (int i = 0, l = images.size(); i < l; i++) {
+                stringBuffer.append(images.get(i).path + "\n");
             }
             textView.setText(stringBuffer.toString());
         }

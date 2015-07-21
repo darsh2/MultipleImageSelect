@@ -7,22 +7,18 @@ import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.models.Image;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
  * Created by Darshan on 4/18/2015.
  */
 public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
-    public int countSelected;
-
     public CustomImageSelectAdapter(Context context, ArrayList<Image> images) {
         super(context, images);
-        this.countSelected = 0;
     }
 
     @Override
@@ -52,52 +48,10 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
             ((FrameLayout) convertView).setForeground(null);
         }
 
-        File file = new File(arrayList.get(position).imagePath);
-        Picasso.with(context).load(file).placeholder(R.drawable.image_placeholder).fit().centerCrop().into(imageView);
+        Glide.with(context)
+                .load(arrayList.get(position).path)
+                .placeholder(R.drawable.image_placeholder).centerCrop().into(imageView);
 
         return convertView;
-    }
-
-    public void toggleSelection(int position) {
-        arrayList.get(position).isSelected = !arrayList.get(position).isSelected;
-        if (arrayList.get(position).isSelected) {
-            countSelected++;
-        } else {
-            countSelected--;
-        }
-        this.notifyDataSetChanged();
-    }
-
-    public void update(ArrayList<Image> images) {
-        arrayList.clear();
-        arrayList.addAll(images);
-
-        //update number of selected images
-        countSelected = 0;
-        for (Image image : arrayList) {
-            if (image.isSelected) {
-                countSelected++;
-            }
-        }
-
-        this.notifyDataSetChanged();
-    }
-
-    public void deselectAll() {
-        for (Image image : arrayList) {
-            image.isSelected = false;
-        }
-        this.notifyDataSetChanged();
-    }
-
-    public ArrayList<String> getSelectedImages() {
-        ArrayList<String> selectedImages = new ArrayList<>();
-        for (Image image : arrayList) {
-            if (image.isSelected) {
-                selectedImages.add(image.imagePath);
-            }
-        }
-
-        return selectedImages;
     }
 }

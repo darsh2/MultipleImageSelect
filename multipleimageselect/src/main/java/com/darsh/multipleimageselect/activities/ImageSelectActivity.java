@@ -46,10 +46,14 @@ public class ImageSelectActivity extends AppCompatActivity {
     private String album;
 
     private ActionMode actionMode;
+    private int countSelected;
 
     private ContentObserver contentObserver;
     private static Handler handler;
-    private ImageLoaderThread imageLoaderThread;
+
+    private Thread thread;
+
+    private final String[] projection = new String[]{ MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +92,11 @@ public class ImageSelectActivity extends AppCompatActivity {
                     }
 
                     case Constants.FETCH_COMPLETED: {
-
-                        /**
-                         * If adapter is null, this implies that the loaded images will be shown
-                         * for the first time, hence send FETCH_COMPLETED message.
-                         * However, if adapter has been initialised, this thread was run either
-                         * due to the activity being restarted or content being changed.
+                        /*
+                        If adapter is null, this implies that the loaded images will be shown
+                        for the first time, hence send FETCH_COMPLETED message.
+                        However, if adapter has been initialised, this thread was run either
+                        due to the activity being restarted or content being changed.
                          */
                         if (customImageSelectAdapter == null) {
                             customImageSelectAdapter = new CustomImageSelectAdapter(getApplicationContext(), images);
@@ -104,14 +107,14 @@ public class ImageSelectActivity extends AppCompatActivity {
                             orientationBasedUI(getResources().getConfiguration().orientation);
 
                         } else {
-                            customImageSelectAdapter.update(images);
-
-                            /**
-                             * Some selected images may have been deleted
-                             * hence update action mode title
+                            customImageSelectAdapter.notifyDataSetChanged();
+                            /*
+                            Some selected images may have been deleted
+                            hence update action mode title
                              */
                             if (actionMode != null) {
-                                actionMode.setTitle(customImageSelectAdapter.countSelected + " " + getString(R.string.selected));
+                                countSelected = msg.arg1;
+                                actionMode.setTitle(countSelected + " " + getString(R.string.selected));
                             }
                         }
 
@@ -164,21 +167,16 @@ public class ImageSelectActivity extends AppCompatActivity {
         gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 3 : 5);
     }
 
-    @Override
-    public void onBackPressed() {
-        sendIntent(null);
-    }
-
     private AbsListView.OnItemClickListener onItemClickListener = new AbsListView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (actionMode == null) {
                 actionMode = ImageSelectActivity.this.startActionMode(callback);
             }
-            customImageSelectAdapter.toggleSelection(position);
-            actionMode.setTitle(customImageSelectAdapter.countSelected + " " + getString(R.string.selected));
+            toggleSelection(position);
+            actionMode.setTitle(countSelected + " " + getString(R.string.selected));
 
-            if (customImageSelectAdapter.countSelected == 0) {
+            if (countSelected == 0) {
                 actionMode.finish();
             }
         }
@@ -191,6 +189,7 @@ public class ImageSelectActivity extends AppCompatActivity {
             menuInflater.inflate(R.menu.menu_contextual_action_bar, menu);
 
             actionMode = mode;
+            countSelected = 0;
 
             return true;
         }
@@ -203,13 +202,12 @@ public class ImageSelectActivity extends AppCompatActivity {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {int i = item.getItemId();
             if (i == R.id.menu_item_add_image) {
-                if (customImageSelectAdapter.countSelected > Constants.limit) {
+                if (countSelected > Constants.limit) {
                     Toast.makeText(getApplicationContext(), Constants.toastDisplayLimitExceed, Toast.LENGTH_LONG).show();
-
                     return false;
                 }
-                sendIntent(customImageSelectAdapter.getSelectedImages());
 
+                sendIntent();
                 return true;
             }
             return false;
@@ -217,45 +215,72 @@ public class ImageSelectActivity extends AppCompatActivity {
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
-            customImageSelectAdapter.deselectAll();
+            if (countSelected > 0) {
+                deselectAll();
+            }
             actionMode = null;
         }
     };
 
-    private void sendIntent(ArrayList<String> selectedImages) {
-        Intent intent = new Intent();
-        if (selectedImages != null) {
-            intent.putStringArrayListExtra(Constants.INTENT_EXTRA_IMAGES, selectedImages);
-            setResult(RESULT_OK, intent);
+    private void toggleSelection(int position) {
+        images.get(position).isSelected = !images.get(position).isSelected;
+        if (images.get(position).isSelected) {
+            countSelected++;
         } else {
-            setResult(RESULT_CANCELED, intent);
+            countSelected--;
         }
+        customImageSelectAdapter.notifyDataSetChanged();
+    }
+
+    private void deselectAll() {
+        for (int i = 0, l = images.size(); i < l; i++) {
+            images.get(i).isSelected = false;
+        }
+        countSelected = 0;
+        customImageSelectAdapter.notifyDataSetChanged();
+    }
+
+    private ArrayList<Image> getSelected() {
+        ArrayList<Image> selectedImages = new ArrayList<>();
+        for (int i = 0, l = images.size(); i < l; i++) {
+            if (images.get(i).isSelected) {
+                selectedImages.add(images.get(i));
+            }
+        }
+        return selectedImages;
+    }
+
+    private void sendIntent() {
+        Intent intent = new Intent();
+        intent.putParcelableArrayListExtra(Constants.INTENT_EXTRA_IMAGES, getSelected());
+        setResult(RESULT_OK, intent);
         finish();
     }
 
     private void startImageLoading() {
         abortImageLoading();
 
-        imageLoaderThread = new ImageLoaderThread();
-        imageLoaderThread.start();
+        ImageLoaderRunnable runnable = new ImageLoaderRunnable();
+        thread = new Thread(runnable);
+        thread.start();
     }
 
     private void abortImageLoading() {
-        //No thread is running
-        if (imageLoaderThread == null) {
+        if (thread == null) {
             return;
         }
 
-        //Interrupt thread if running and wait till it joins
-        imageLoaderThread.interrupt();
-        try {
-            imageLoaderThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (thread.isAlive()) {
+            thread.interrupt();
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private class ImageLoaderThread extends Thread {
+    private class ImageLoaderRunnable implements Runnable {
         @Override
         public void run() {
             android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
@@ -263,10 +288,10 @@ public class ImageSelectActivity extends AppCompatActivity {
             Message message;
             if (customImageSelectAdapter == null) {
                 message = handler.obtainMessage();
-                /**
-                 * If the adapter is null, this is first time this activity's view is
-                 * being shown, hence send FETCH_STARTED message to show progress bar
-                 * while images are loaded from phone
+                /*
+                If the adapter is null, this is first time this activity's view is
+                being shown, hence send FETCH_STARTED message to show progress bar
+                while images are loaded from phone
                  */
                 message.what = Constants.FETCH_STARTED;
                 message.sendToTarget();
@@ -277,37 +302,62 @@ public class ImageSelectActivity extends AppCompatActivity {
             }
 
             File file;
-            HashSet<String> selectedImages = new HashSet<>();
+            HashSet<Long> selectedImages = new HashSet<>();
             if (images != null) {
-                for (Image image : images) {
-                    file = new File(image.imagePath);
+                Image image;
+                for (int i = 0, l = images.size(); i < l; i++) {
+                    image = images.get(i);
+                    file = new File(image.path);
                     if (file.exists() && image.isSelected) {
-                        selectedImages.add(image.imagePath);
+                        selectedImages.add(image.id);
                     }
                 }
             }
 
-            images = new ArrayList<>();
-            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[]{ MediaStore.Images.Media.DATA },
+            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?", new String[]{ album }, MediaStore.Images.Media.DATE_ADDED);
+
+            /*
+            In case this runnable is executed to onChange calling startImageLoading,
+            using countSelected variable can result in a race condition. To avoid that,
+            tempCountSelected keeps track of number of selected images. On handling
+            FETCH_COMPLETED message, countSelected is assigned value of tempCountSelected.
+             */
+            int tempCountSelected = 0;
+            ArrayList<Image> temp = new ArrayList<>(cursor.getCount());
+
             if (cursor.moveToLast()) {
                 do {
                     if (Thread.interrupted()) {
                         return;
                     }
 
-                    String image = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-                    file = new File(image);
+                    long id = cursor.getLong(cursor.getColumnIndex(projection[0]));
+                    String name = cursor.getString(cursor.getColumnIndex(projection[1]));
+                    String path = cursor.getString(cursor.getColumnIndex(projection[2]));
+                    boolean isSelected = selectedImages.contains(id);
+                    if (isSelected) {
+                        tempCountSelected++;
+                    }
+
+                    file = new File(path);
                     if (file.exists()) {
-                        images.add(new Image(image, selectedImages.contains(image)));
+                        temp.add(new Image(id, name, path, isSelected));
                     }
 
                 } while (cursor.moveToPrevious());
             }
             cursor.close();
 
+            if (images == null) {
+                images = new ArrayList<>();
+            }
+            images.clear();
+            images.addAll(temp);
+
             message = handler.obtainMessage();
             message.what = Constants.FETCH_COMPLETED;
+            message.arg1 = tempCountSelected;
             message.sendToTarget();
 
             Thread.interrupted();

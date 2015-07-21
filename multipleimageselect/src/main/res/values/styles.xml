@@ -11,12 +11,4 @@
         <item name="windowActionModeOverlay">true</item>
     </style>
 
-    <style name="scrollbar">
-        <item name="android:scrollbars">vertical</item>
-        <item name="android:fadeScrollbars">true</item>
-        <item name="android:scrollbarStyle">insideOverlay</item>
-        <item name="android:scrollbarAlwaysDrawVerticalTrack">true</item>
-        <item name="android:scrollbarThumbVertical">@drawable/scrollbar</item>
-    </style>
-
 </resources>

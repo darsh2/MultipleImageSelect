@@ -7,11 +7,15 @@ import android.os.Parcelable;
  * Created by Darshan on 4/18/2015.
  */
 public class Image implements Parcelable {
-    public String imagePath;
+    public long id;
+    public String name;
+    public String path;
     public boolean isSelected;
 
-    public Image(String imagePath, boolean isSelected) {
-        this.imagePath = imagePath;
+    public Image(long id, String name, String path, boolean isSelected) {
+        this.id = id;
+        this.name = name;
+        this.path = path;
         this.isSelected = isSelected;
     }
 
@@ -22,8 +26,9 @@ public class Image implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(imagePath);
-        dest.writeByte((byte) (isSelected ? 1 : 0));
+        dest.writeLong(id);
+        dest.writeString(name);
+        dest.writeString(path);
     }
 
     public static final Parcelable.Creator<Image> CREATOR = new Parcelable.Creator<Image>() {
@@ -39,7 +44,8 @@ public class Image implements Parcelable {
     };
 
     private Image(Parcel in) {
-        imagePath = in.readString();
-        isSelected = in.readByte() != 0;
+        id = in.readLong();
+        name = in.readString();
+        path = in.readString();
     }
 }

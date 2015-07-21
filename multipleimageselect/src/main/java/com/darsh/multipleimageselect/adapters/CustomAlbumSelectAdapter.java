@@ -6,11 +6,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.darsh.multipleimageselect.R;
 import com.darsh.multipleimageselect.models.Album;
-import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -40,24 +39,15 @@ public class CustomAlbumSelectAdapter extends CustomGenericAdapter<Album> {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.imageView.setTag(position);
-        viewHolder.textView.setTag(position);
-
         viewHolder.imageView.getLayoutParams().width = size;
         viewHolder.imageView.getLayoutParams().height = size;
 
-        Album album = getItem(position);
-        viewHolder.textView.setText(album.name);
-        File file = new File(album.imagePath);
-        Picasso.with(context).load(file).fit().centerCrop().into(viewHolder.imageView);
+        viewHolder.textView.setText(arrayList.get(position).name);
+        Glide.with(context)
+                .load(arrayList.get(position).cover)
+                .placeholder(R.drawable.image_placeholder).centerCrop().into(viewHolder.imageView);
 
         return convertView;
-    }
-
-    public void update(ArrayList<Album> albums) {
-        arrayList.clear();
-        arrayList.addAll(albums);
-        this.notifyDataSetChanged();
     }
 
     private static class ViewHolder {
