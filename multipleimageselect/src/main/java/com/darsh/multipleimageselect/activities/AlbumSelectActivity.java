@@ -77,8 +77,6 @@ public class AlbumSelectActivity extends AppCompatActivity {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case Constants.FETCH_STARTED: {
-                        handler.removeMessages(Constants.FETCH_STARTED);
-
                         progressBar.setVisibility(View.VISIBLE);
                         gridView.setVisibility(View.INVISIBLE);
 
@@ -147,6 +145,13 @@ public class AlbumSelectActivity extends AppCompatActivity {
         gridView.setNumColumns(orientation == Configuration.ORIENTATION_PORTRAIT ? 2 : 4);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
     private AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -205,8 +210,9 @@ public class AlbumSelectActivity extends AppCompatActivity {
                 return;
             }
 
-            Cursor cursor = getApplicationContext().getContentResolver().
-                    query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
+
+            Cursor cursor = getApplicationContext().getContentResolver()
+                    .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
                             null, null, MediaStore.Images.Media.DATE_ADDED);
 
             ArrayList<Album> temp = new ArrayList<>(cursor.getCount());
@@ -230,7 +236,7 @@ public class AlbumSelectActivity extends AppCompatActivity {
                      */
                     file = new File(image);
                     if (file.exists() && !albumSet.contains(album)) {
-                        temp.add(new Album(album, Uri.fromFile(file).getPath()));
+                        temp.add(new Album(album, image));
                         albumSet.add(album);
                     }
 

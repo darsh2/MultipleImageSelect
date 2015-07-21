@@ -40,7 +40,7 @@ startActivityForResult(intent, Constants.REQUEST_CODE);
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
   if (requestCode == Constants.REQUEST_CODE && resultCode == RESULT_OK && data != null) {
     //The array list has the image paths of the selected images
-    ArrayList<String> images = data.getStringArrayListExtra(Constants.INTENT_EXTRA_IMAGES);
+    ArrayList<Image> images = data.getParcelableArrayListExtra(Constants.INTENT_EXTRA_IMAGES);
     ...  
 }
 ```
