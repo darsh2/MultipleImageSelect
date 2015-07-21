@@ -52,6 +52,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 Similar libraries can be found [here](https://android-arsenal.com/tag/157)
 #Acknowledgements
 This library makes use of [Glide](https://github.com/bumptech/glide) by Bump Technologies.
+(Thanks to [WindSekirun](https://github.com/WindSekirun) for suggesting Glide)
 #License
 ```license
 Copyright 2015 Darshan Dorai
