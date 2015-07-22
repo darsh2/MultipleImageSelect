@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         textView = (TextView) findViewById(R.id.text_view);
 
         Intent intent = new Intent(MainActivity.this, AlbumSelectActivity.class);
-        intent.putExtra(Constants.INTENT_EXTRA_LIMIT, 20);
+        intent.putExtra(Constants.INTENT_EXTRA_LIMIT, 3);
         startActivityForResult(intent, Constants.REQUEST_CODE);
     }
 

@@ -9,4 +9,6 @@
 
     <string name="selected">selected</string>
 
+    <string name="limit_exceeded">Can select a maximum of %d images</string>
+
 </resources>

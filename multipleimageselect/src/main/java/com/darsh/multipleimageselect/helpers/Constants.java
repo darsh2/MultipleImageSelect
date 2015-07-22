@@ -16,7 +16,4 @@ public class Constants {
 
     //Maximum number of images that can be selected at a time
     public static int limit;
-
-    //String to display when number of selected images limit is exceeded
-    public static String toastDisplayLimitExceed = String.format("Can select maximum of %d images", limit);
 }

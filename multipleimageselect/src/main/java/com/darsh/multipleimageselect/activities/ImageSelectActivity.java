@@ -203,7 +203,7 @@ public class ImageSelectActivity extends AppCompatActivity {
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {int i = item.getItemId();
             if (i == R.id.menu_item_add_image) {
                 if (countSelected > Constants.limit) {
-                    Toast.makeText(getApplicationContext(), Constants.toastDisplayLimitExceed, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.limit_exceeded), Constants.limit), Toast.LENGTH_LONG).show();
                     return false;
                 }
 
