@@ -3,7 +3,6 @@ package com.darsh.multipleimageselect.adapters;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
@@ -23,35 +22,45 @@ public class CustomImageSelectAdapter extends CustomGenericAdapter<Image> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
+        ViewHolder viewHolder;
 
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.grid_view_item_image_select, null);
-            convertView.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, AbsListView.LayoutParams.MATCH_PARENT));
-            imageView = (ImageView) convertView.findViewById(R.id.image_view_image_select);
+
+            viewHolder = new ViewHolder();
+            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image_view_image_select);
+            viewHolder.view = convertView.findViewById(R.id.view_alpha);
+
+            convertView.setTag(viewHolder);
 
         } else {
-            imageView = (ImageView) convertView.getTag(R.id.image_view_image_select);
+            viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        convertView.setTag(R.id.image_view_image_select, imageView);
+        viewHolder.imageView.getLayoutParams().width = size;
+        viewHolder.imageView.getLayoutParams().height = size;
 
-        imageView.getLayoutParams().width = size;
-        imageView.getLayoutParams().height = size;
+        viewHolder.view.getLayoutParams().width = size;
+        viewHolder.view.getLayoutParams().height = size;
 
         if (arrayList.get(position).isSelected) {
-            imageView.setAlpha((float) 0.5);
-            ((FrameLayout) convertView).setForeground(context.getResources().getDrawable(R.drawable.ic_cab_done_mtrl_alpha));
+            viewHolder.view.setAlpha(0.5f);
+            ((FrameLayout) convertView).setForeground(context.getResources().getDrawable(R.drawable.ic_done_white));
 
         } else {
-            imageView.setAlpha((float) 1.0);
+            viewHolder.view.setAlpha(0.0f);
             ((FrameLayout) convertView).setForeground(null);
         }
 
         Glide.with(context)
                 .load(arrayList.get(position).path)
-                .placeholder(R.drawable.image_placeholder).centerCrop().into(imageView);
+                .placeholder(R.drawable.image_placeholder).into(viewHolder.imageView);
 
         return convertView;
+    }
+
+    private static class ViewHolder {
+        public ImageView imageView;
+        public View view;
     }
 }

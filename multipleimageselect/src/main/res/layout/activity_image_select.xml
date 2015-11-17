@@ -8,12 +8,20 @@
         android:layout_height="wrap_content"
         layout="@layout/toolbar"/>
 
+    <TextView
+        android:id="@+id/text_view_permission_denied"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:text="@string/permission_denied_images"/>
+
     <ProgressBar
         android:id="@+id/progress_bar_image_select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"/>
+        android:layout_centerInParent="true"/>
 
     <GridView
         android:id="@+id/grid_view_image_select"

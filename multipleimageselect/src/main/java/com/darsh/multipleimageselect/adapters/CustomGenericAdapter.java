@@ -39,4 +39,9 @@ public abstract class CustomGenericAdapter<T> extends BaseAdapter {
     public void setLayoutParams(int size) {
         this.size = size;
     }
+
+    public void releaseResources() {
+        arrayList = null;
+        context = null;
+    }
 }

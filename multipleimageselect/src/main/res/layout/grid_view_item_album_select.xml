@@ -18,10 +18,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:background="#55000000"
+        android:background="@color/background"
+        android:textColor="@color/primaryText"
         android:textSize="20dp"
         android:lines="1"
-        android:textColor="#ffffff"
         android:gravity="center"/>
 
 </FrameLayout>
