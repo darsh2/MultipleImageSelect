@@ -283,11 +283,6 @@ public class ImageSelectActivity extends AppCompatActivity {
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {int i = item.getItemId();
             if (i == R.id.menu_item_add_image) {
-                if (countSelected > Constants.limit) {
-                    Toast.makeText(getApplicationContext(), String.format(getString(R.string.limit_exceeded), Constants.limit), Toast.LENGTH_LONG).show();
-                    return false;
-                }
-
                 sendIntent();
                 return true;
             }
@@ -304,6 +299,11 @@ public class ImageSelectActivity extends AppCompatActivity {
     };
 
     private void toggleSelection(int position) {
+        if (!images.get(position).isSelected && countSelected >= Constants.limit) {
+            Toast.makeText(getApplicationContext(), String.format(getString(R.string.limit_exceeded), Constants.limit), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         images.get(position).isSelected = !images.get(position).isSelected;
         if (images.get(position).isSelected) {
             countSelected++;
