@@ -8,7 +8,8 @@ public class Constants {
 
     public static final int FETCH_STARTED = 2001;
     public static final int FETCH_COMPLETED = 2002;
-    public static final int PERMISSION_DENIED = 2003;
+    public static final int PERMISSION_GRANTED = 2003;
+    public static final int PERMISSION_DENIED = 2004;
 
     /**
      * Request code for permission has to be < (1 << 8)
@@ -23,6 +24,4 @@ public class Constants {
 
     //Maximum number of images that can be selected at a time
     public static int limit;
-
-    public static final boolean DEBUG = true;
 }

@@ -115,11 +115,29 @@ public class ImageSelectActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) {
                 switch (msg.what) {
-                    case Constants.FETCH_STARTED: {
+                    case Constants.PERMISSION_GRANTED: {
                         permissionHint.setVisibility(View.INVISIBLE);
 
+                        loadImages();
+
+                        break;
+                    }
+
+                    case Constants.PERMISSION_DENIED: {
+                        Toast.makeText(getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
+
+                        permissionHint.setVisibility(View.VISIBLE);
+
+                        progressBar.setVisibility(View.INVISIBLE);
+                        gridView.setVisibility(View.INVISIBLE);
+
+                        break;
+                    }
+
+                    case Constants.FETCH_STARTED: {
                         progressBar.setVisibility(View.VISIBLE);
                         gridView.setVisibility(View.INVISIBLE);
+
                         break;
                     }
 
@@ -153,17 +171,6 @@ public class ImageSelectActivity extends AppCompatActivity {
                         break;
                     }
 
-                    case Constants.PERMISSION_DENIED: {
-                        Toast.makeText(getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
-
-                        permissionHint.setVisibility(View.VISIBLE);
-
-                        progressBar.setVisibility(View.INVISIBLE);
-                        gridView.setVisibility(View.INVISIBLE);
-
-                        break;
-                    }
-
                     default: {
                         super.handleMessage(msg);
                     }
@@ -183,24 +190,21 @@ public class ImageSelectActivity extends AppCompatActivity {
 
     private void requestPermission() {
         if (ContextCompat.checkSelfPermission(ImageSelectActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(ImageSelectActivity.this, new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE }, Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
-
-        } else {
-            loadImages();
+            ActivityCompat.requestPermissions(ImageSelectActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+            return;
         }
+
+        Message message = handler.obtainMessage();
+        message.what = Constants.PERMISSION_GRANTED;
+        message.sendToTarget();
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode == Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                loadImages();
-
-            } else {
-                Message message = handler.obtainMessage();
-                message.what = Constants.PERMISSION_DENIED;
-                message.sendToTarget();
-            }
+            Message message = handler.obtainMessage();
+            message.what = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ? Constants.PERMISSION_GRANTED : Constants.PERMISSION_DENIED;
+            message.sendToTarget();
         }
     }
 
