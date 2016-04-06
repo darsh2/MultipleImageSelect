@@ -217,8 +217,10 @@ public class ImageSelectActivity extends AppCompatActivity {
         getContentResolver().unregisterContentObserver(observer);
         observer = null;
 
-        handler.removeCallbacksAndMessages(null);
-        handler = null;
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+            handler = null;
+        }
     }
 
     @Override
