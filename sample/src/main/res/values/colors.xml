@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="multiple_image_select_primary">#673AB7</color>
+    <color name="multiple_image_select_primaryDark">#512DA8</color>
+    <color name="multiple_image_select_primaryLight">#D1C4E9</color>
+    <color name="multiple_image_select_accent">#536DFE</color>
+
+    <color name="multiple_image_select_primaryText">#212121</color>
+    <color name="multiple_image_select_secondaryText">#727272</color>
+    <color name="multiple_image_select_divider">#B6B6B6</color>
+
+    <color name="multiple_image_select_toolbarPrimaryText">#FFFFFF</color>
+
+    <color name="multiple_image_select_albumTextBackground">#99FFFFFF</color>
+    <color name="multiple_image_select_imageSelectBackground">#000000</color>
+</resources>
