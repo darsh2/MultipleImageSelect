@@ -13,4 +13,6 @@
 
     <color name="multiple_image_select_albumTextBackground">#99FFFFFF</color>
     <color name="multiple_image_select_imageSelectBackground">#000000</color>
+
+    <color name="multiple_image_select_buttonText">#FFFFFF</color>
 </resources>

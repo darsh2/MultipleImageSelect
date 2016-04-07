@@ -9,7 +9,7 @@
         layout="@layout/toolbar"/>
 
     <TextView
-        android:id="@+id/text_view_permission_denied"
+        android:id="@+id/text_view_request_permission"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -33,4 +33,17 @@
         android:paddingLeft="1dp"
         android:paddingRight="1dp"
         android:stretchMode="columnWidth"/>
+
+    <Button
+        android:id="@+id/button_grant_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true"
+        android:padding="16dp"
+        android:text="@string/grant_permission"
+        android:textSize="20sp"
+        android:textAllCaps="true"
+        android:textColor="@color/multiple_image_select_buttonText"
+        android:background="@color/multiple_image_select_accent"/>
 </RelativeLayout>

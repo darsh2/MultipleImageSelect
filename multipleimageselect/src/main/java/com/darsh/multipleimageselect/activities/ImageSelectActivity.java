@@ -25,6 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -46,7 +47,9 @@ public class ImageSelectActivity extends AppCompatActivity {
     private ArrayList<Image> images;
     private String album;
 
-    private TextView permissionHint;
+    private TextView requestPermission;
+    private Button grantPermission;
+    private final String[] requiredPermissions = new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE };
 
     private ProgressBar progressBar;
     private GridView gridView;
@@ -86,8 +89,15 @@ public class ImageSelectActivity extends AppCompatActivity {
         }
         album = intent.getStringExtra(Constants.INTENT_EXTRA_ALBUM);
 
-        permissionHint = (TextView) findViewById(R.id.text_view_permission_denied);
-        permissionHint.setVisibility(View.INVISIBLE);
+        requestPermission = (TextView) findViewById(R.id.text_view_request_permission);
+        grantPermission = (Button) findViewById(R.id.button_grant_permission);
+        grantPermission.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestPermission();
+            }
+        });
+        hidePermissionHelperUI();
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar_image_select);
         gridView = (GridView) findViewById(R.id.grid_view_image_select);
@@ -116,7 +126,7 @@ public class ImageSelectActivity extends AppCompatActivity {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case Constants.PERMISSION_GRANTED: {
-                        permissionHint.setVisibility(View.INVISIBLE);
+                        hidePermissionHelperUI();
 
                         loadImages();
 
@@ -124,9 +134,7 @@ public class ImageSelectActivity extends AppCompatActivity {
                     }
 
                     case Constants.PERMISSION_DENIED: {
-                        Toast.makeText(getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
-
-                        permissionHint.setVisibility(View.VISIBLE);
+                        showPermissionHelperUI();
 
                         progressBar.setVisibility(View.INVISIBLE);
                         gridView.setVisibility(View.INVISIBLE);
@@ -185,18 +193,25 @@ public class ImageSelectActivity extends AppCompatActivity {
         };
         getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, observer);
 
-        requestPermission();
+        checkIfPermissionGranted();
     }
 
-    private void requestPermission() {
-        if (ContextCompat.checkSelfPermission(ImageSelectActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(ImageSelectActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
+    private void checkIfPermissionGranted() {
+        if (ContextCompat.checkSelfPermission(ImageSelectActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermission();
             return;
         }
 
         Message message = handler.obtainMessage();
         message.what = Constants.PERMISSION_GRANTED;
         message.sendToTarget();
+    }
+
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(ImageSelectActivity.this,
+                requiredPermissions,
+                Constants.PERMISSION_REQUEST_READ_EXTERNAL_STORAGE);
     }
 
     @Override
@@ -206,6 +221,16 @@ public class ImageSelectActivity extends AppCompatActivity {
             message.what = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED ? Constants.PERMISSION_GRANTED : Constants.PERMISSION_DENIED;
             message.sendToTarget();
         }
+    }
+
+    private void hidePermissionHelperUI() {
+        requestPermission.setVisibility(View.INVISIBLE);
+        grantPermission.setVisibility(View.INVISIBLE);
+    }
+
+    private void showPermissionHelperUI() {
+        requestPermission.setVisibility(View.VISIBLE);
+        grantPermission.setVisibility(View.VISIBLE);
     }
 
     @Override
