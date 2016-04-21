@@ -9,6 +9,8 @@ can be selected. Can be used in apps with APK 11 onwards.
 Sample app can be found [here](https://github.com/darsh2/MultipleImageSelect/tree/master/sample) 
 #Usage
 Include this library in your project using gradle (thanks to [JitPack.io](https://github.com/jitpack-io)).
+
+For stable build:
 ```gradle
 repositories {
   maven {
@@ -20,6 +22,20 @@ dependencies {
   compile 'com.github.darsh2:MultipleImageSelect:v0.0.4'
 }
 ```
+
+For using the latest build, replace the tag in dependencies above with latest commit hash. Example:
+```gradle
+repositories {
+  maven {
+    url "https://jitpack.io"
+  }
+}
+
+dependencies {
+  compile 'com.github.darsh2:MultipleImageSelect:3474549'
+}
+```
+
 In project's AndroidManifest.xml, add the following under application node:
 ```xml
 <activity
