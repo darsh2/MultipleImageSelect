@@ -23,6 +23,13 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"/>
 
+    <TextView
+        android:id="@+id/text_view_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/error_null_cursor"/>
+
     <GridView
         android:id="@+id/grid_view_image_select"
         android:layout_width="match_parent"

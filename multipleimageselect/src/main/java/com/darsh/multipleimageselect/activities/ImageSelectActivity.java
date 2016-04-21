@@ -51,6 +51,8 @@ public class ImageSelectActivity extends AppCompatActivity {
     private Button grantPermission;
     private final String[] requiredPermissions = new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE };
 
+    private TextView errorDisplay;
+
     private ProgressBar progressBar;
     private GridView gridView;
     private CustomImageSelectAdapter adapter;
@@ -88,6 +90,9 @@ public class ImageSelectActivity extends AppCompatActivity {
             finish();
         }
         album = intent.getStringExtra(Constants.INTENT_EXTRA_ALBUM);
+
+        errorDisplay = (TextView) findViewById(R.id.text_view_error);
+        errorDisplay.setVisibility(View.INVISIBLE);
 
         requestPermission = (TextView) findViewById(R.id.text_view_request_permission);
         grantPermission = (Button) findViewById(R.id.button_grant_permission);
@@ -177,6 +182,11 @@ public class ImageSelectActivity extends AppCompatActivity {
                         }
 
                         break;
+                    }
+
+                    case Constants.ERROR: {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        errorDisplay.setVisibility(View.VISIBLE);
                     }
 
                     default: {
@@ -428,6 +438,13 @@ public class ImageSelectActivity extends AppCompatActivity {
 
             Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?", new String[]{ album }, MediaStore.Images.Media.DATE_ADDED);
+            
+            if (cursor == null) {
+                message = handler.obtainMessage();
+                message.what = Constants.ERROR;
+                message.sendToTarget();
+                return;
+            }
 
             /*
             In case this runnable is executed to onChange calling loadImages,

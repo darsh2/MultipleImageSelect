@@ -49,6 +49,8 @@ public class AlbumSelectActivity extends AppCompatActivity {
     private Button grantPermission;
     private final String[] requiredPermissions = new String[]{ Manifest.permission.READ_EXTERNAL_STORAGE };
 
+    private TextView errorDisplay;
+
     private ProgressBar progressBar;
     private GridView gridView;
     private CustomAlbumSelectAdapter adapter;
@@ -83,6 +85,9 @@ public class AlbumSelectActivity extends AppCompatActivity {
             finish();
         }
         Constants.limit = intent.getIntExtra(Constants.INTENT_EXTRA_LIMIT, Constants.DEFAULT_LIMIT);
+
+        errorDisplay = (TextView) findViewById(R.id.text_view_error);
+        errorDisplay.setVisibility(View.INVISIBLE);
 
         requestPermission = (TextView) findViewById(R.id.text_view_request_permission);
         grantPermission = (Button) findViewById(R.id.button_grant_permission);
@@ -150,6 +155,13 @@ public class AlbumSelectActivity extends AppCompatActivity {
                         } else {
                             adapter.notifyDataSetChanged();
                         }
+
+                        break;
+                    }
+
+                    case Constants.ERROR: {
+                        progressBar.setVisibility(View.INVISIBLE);
+                        errorDisplay.setVisibility(View.VISIBLE);
 
                         break;
                     }
@@ -326,10 +338,16 @@ public class AlbumSelectActivity extends AppCompatActivity {
                 return;
             }
 
-
             Cursor cursor = getApplicationContext().getContentResolver()
                     .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
                             null, null, MediaStore.Images.Media.DATE_ADDED);
+
+            if (cursor == null) {
+                message = handler.obtainMessage();
+                message.what = Constants.ERROR;
+                message.sendToTarget();
+                return;
+            }
 
             ArrayList<Album> temp = new ArrayList<>(cursor.getCount());
             HashSet<String> albumSet = new HashSet<>();
