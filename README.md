@@ -1,4 +1,7 @@
 #MultipleImageSelect
+
+![Alt text](/screenshots/mis.gif)
+
 An android library that allows selection of multiple images from gallery. It shows an initial
 album (buckets) chooser and then images in selected album. Can limit the number of images that
 can be selected. Can be used in apps with APK 11 onwards.
@@ -6,6 +9,8 @@ can be selected. Can be used in apps with APK 11 onwards.
 Sample app can be found [here](https://github.com/darsh2/MultipleImageSelect/tree/master/sample) 
 #Usage
 Include this library in your project using gradle (thanks to [JitPack.io](https://github.com/jitpack-io)).
+
+For stable build:
 ```gradle
 repositories {
   maven {
@@ -14,9 +19,23 @@ repositories {
 }
 
 dependencies {
-  compile 'com.github.darsh2:MultipleImageSelect:v0.0.3'
+  compile 'com.github.darsh2:MultipleImageSelect:v0.0.4'
 }
 ```
+
+For using the latest build, replace the tag in dependencies above with latest commit hash. Example:
+```gradle
+repositories {
+  maven {
+    url "https://jitpack.io"
+  }
+}
+
+dependencies {
+  compile 'com.github.darsh2:MultipleImageSelect:3474549'
+}
+```
+
 In project's AndroidManifest.xml, add the following under application node:
 ```xml
 <activity
@@ -44,12 +63,75 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     ...  
 }
 ```
+#Custom Styles
+![Alt text](/screenshots/misCC.gif)
+
+1. To change the color of UI elements, in colors.xml file, override the following attributes with the desired colors. Example:
+
+```xml
+<color name="multiple_image_select_primary">#673AB7</color>
+<color name="multiple_image_select_primaryDark">#512DA8</color>
+<color name="multiple_image_select_primaryLight">#D1C4E9</color>
+<color name="multiple_image_select_accent">#536DFE</color>
+<color name="multiple_image_select_primaryText">#212121</color>
+<color name="multiple_image_select_secondaryText">#727272</color>
+<color name="multiple_image_select_divider">#B6B6B6</color>
+<color name="multiple_image_select_toolbarPrimaryText">#FFFFFF</color>
+<color name="multiple_image_select_albumTextBackground">#99FFFFFF</color>
+<color name="multiple_image_select_imageSelectBackground">#000000</color>    
+```
+
+![Alt text](/screenshots/misCT.gif)
+
+2. To change the theme altogether, do step 1, and make the following changes in styles.xml and manifest file:
+
+styles.xml:
+Create the theme you want to use along with a theme for toolbar and actionmode. Example:
+
+```xml
+<style name="OverrideMultipleImageSelectTheme" parent="Theme.AppCompat.NoActionBar">
+  <item name="colorPrimary">@color/multiple_image_select_primary</item>
+  <item name="colorPrimaryDark">@color/multiple_image_select_primaryDark</item>
+  <item name="colorAccent">@color/multiple_image_select_accent</item>
+  <item name="actionModeStyle">@style/OverrideCustomActionModeStyle</item>
+  <item name="windowActionModeOverlay">true</item>
+</style>
+<style name="OverrideCustomActionModeStyle" parent="Base.Widget.AppCompat.ActionMode">
+  <item name="background">@color/multiple_image_select_primary</item>
+</style>
+<style name="OverrideCustomToolbarTheme" parent="Base.ThemeOverlay.AppCompat.ActionBar">
+</style>
+```
+
+AndroidManifest.xml:
+Add ```tools:replace="android:theme"``` to AlbumSelectActivity and ImageSelectActivity and specify theme to use. Example: 
+
+```xml
+<manifest ...
+  xmlns:tools="http://schemas.android.com/tools"
+  ...>
+  
+  <activity android:name="com.darsh.multipleimageselect.activities.AlbumSelectActivity"
+		tools:replace="android:theme"
+    android:theme="@style/OverrideMultipleImageSelectTheme">
+    <intent-filter>
+      <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT" />
+    </intent-filter>
+    </activity>
+  <activity android:name="com.darsh.multipleimageselect.activities.ImageSelectActivity"
+    tools:replace="android:theme"
+    android:theme="@style/OverrideMultipleImageSelectTheme">
+    <intent-filter>
+      <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT" />
+    </intent-filter>
+  </activity>
+```
 #Screenshots
-![Alt text](/screenshots/ss1.png?raw=true)
-![Alt text](/screenshots/ss2.png?raw=true)
-![Alt text](/screenshots/ss3.png?raw=true)
+Can be found [here](https://github.com/darsh2/MultipleImageSelect/tree/master/screenshots)
 #Apps using this
 [Gallery Organizer](https://play.google.com/store/apps/details?id=com.darsh.galleryorganizer2)
+
+[PictureJam Collage Maker](https://play.google.com/store/apps/details?id=xyz.pichancer.picturejam.free)
 #Similar Projects
 Similar libraries can be found [here](https://android-arsenal.com/tag/157)
 #Acknowledgements

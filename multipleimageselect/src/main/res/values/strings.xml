@@ -8,7 +8,9 @@
     <string name="selected">selected</string>
     <string name="limit_exceeded">Can select a maximum of %d images</string>
 
-    <string name="permission_denied">Permission Denied!</string>
     <string name="permission_denied_albums">Allow access to photos, media and files on your device to view albums</string>
     <string name="permission_denied_images">Allow access to photos, media and files on your device to view images</string>
+    <string name="grant_permission">Grant Permission</string>
+
+    <string name="error_null_cursor">Oops, something went wrong!</string>
 </resources>
