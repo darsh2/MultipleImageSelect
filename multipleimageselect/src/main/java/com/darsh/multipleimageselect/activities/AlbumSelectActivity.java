@@ -41,7 +41,9 @@ import java.util.HashSet;
  * Created by Darshan on 4/14/2015.
  */
 public class AlbumSelectActivity extends AppCompatActivity {
+
     private final String TAG = AlbumSelectActivity.class.getName();
+    private static final String APP_PACKAGE_NAME_SUFFIX = "package:";
 
     private ArrayList<Album> albums;
 
@@ -94,7 +96,13 @@ public class AlbumSelectActivity extends AppCompatActivity {
         grantPermission.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestPermission();
+                if(!ActivityCompat.shouldShowRequestPermissionRationale(AlbumSelectActivity.this,Manifest.permission.READ_EXTERNAL_STORAGE)){
+                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(Uri.parse( APP_PACKAGE_NAME_SUFFIX + getPackageName()));
+                    startActivity(intent);
+                } else {
+                    requestPermission();
+                }
             }
         });
         hidePermissionHelperUI();
