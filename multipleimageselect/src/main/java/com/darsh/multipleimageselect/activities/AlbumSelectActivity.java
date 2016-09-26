@@ -14,7 +14,6 @@ import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -52,7 +51,9 @@ public class AlbumSelectActivity extends HelperActivity {
     private Handler handler;
     private Thread thread;
 
-    private final String[] projection = new String[]{ MediaStore.Images.Media.BUCKET_DISPLAY_NAME, MediaStore.Images.Media.DATA };
+    private final String[] projection = new String[]{
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+            MediaStore.Images.Media.DATA };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,23 +103,13 @@ public class AlbumSelectActivity extends HelperActivity {
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     case Constants.PERMISSION_GRANTED: {
-                        Log.i(TAG, "PERMISSION_GRANTED");
                         loadAlbums();
-                        break;
-                    }
-
-                    case Constants.PERMISSION_DENIED: {
-                        Log.i(TAG, "PERMISSION_DENIED");
-                        progressBar.setVisibility(View.INVISIBLE);
-                        gridView.setVisibility(View.INVISIBLE);
-
                         break;
                     }
 
                     case Constants.FETCH_STARTED: {
                         progressBar.setVisibility(View.VISIBLE);
                         gridView.setVisibility(View.INVISIBLE);
-
                         break;
                     }
 
@@ -134,14 +125,12 @@ public class AlbumSelectActivity extends HelperActivity {
                         } else {
                             adapter.notifyDataSetChanged();
                         }
-
                         break;
                     }
 
                     case Constants.ERROR: {
                         progressBar.setVisibility(View.INVISIBLE);
                         errorDisplay.setVisibility(View.VISIBLE);
-
                         break;
                     }
 
@@ -166,7 +155,7 @@ public class AlbumSelectActivity extends HelperActivity {
     protected void onStop() {
         super.onStop();
 
-        abortLoading();
+        stopThread();
 
         getContentResolver().unregisterContentObserver(observer);
         observer = null;
@@ -220,7 +209,9 @@ public class AlbumSelectActivity extends HelperActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == Constants.REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+        if (requestCode == Constants.REQUEST_CODE
+                && resultCode == RESULT_OK
+                && data != null) {
             setResult(RESULT_OK, data);
             finish();
         }
@@ -241,28 +232,7 @@ public class AlbumSelectActivity extends HelperActivity {
     }
 
     private void loadAlbums() {
-        Log.i(TAG, "loadAlbums");
-        abortLoading();
-
-        AlbumLoaderRunnable runnable = new AlbumLoaderRunnable();
-        thread = new Thread(runnable);
-        thread.start();
-    }
-
-
-    private void abortLoading() {
-        if (thread == null) {
-            return;
-        }
-
-        if (thread.isAlive()) {
-            thread.interrupt();
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        startThread(new AlbumLoaderRunnable());
     }
 
     private class AlbumLoaderRunnable implements Runnable {
@@ -270,32 +240,21 @@ public class AlbumSelectActivity extends HelperActivity {
         public void run() {
             android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
-            Message message;
             if (adapter == null) {
-                message = handler.obtainMessage();
-                message.what = Constants.FETCH_STARTED;
-                message.sendToTarget();
-            }
-
-            if (Thread.interrupted()) {
-                return;
+                sendMessage(Constants.FETCH_STARTED);
             }
 
             Cursor cursor = getApplicationContext().getContentResolver()
                     .query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
                             null, null, MediaStore.Images.Media.DATE_ADDED);
-
             if (cursor == null) {
-                message = handler.obtainMessage();
-                message.what = Constants.ERROR;
-                message.sendToTarget();
+                sendMessage(Constants.ERROR);
                 return;
             }
 
             ArrayList<Album> temp = new ArrayList<>(cursor.getCount());
             HashSet<String> albumSet = new HashSet<>();
             File file;
-
             if (cursor.moveToLast()) {
                 do {
                     if (Thread.interrupted()) {
@@ -327,12 +286,37 @@ public class AlbumSelectActivity extends HelperActivity {
             albums.clear();
             albums.addAll(temp);
 
-            message = handler.obtainMessage();
-            message.what = Constants.FETCH_COMPLETED;
-            message.sendToTarget();
-
-            Thread.interrupted();
+            sendMessage(Constants.FETCH_COMPLETED);
         }
+    }
+
+    private void startThread(Runnable runnable) {
+        stopThread();
+        thread = new Thread(runnable);
+        thread.start();
+    }
+
+    private void stopThread() {
+        if (thread == null || !thread.isAlive()) {
+            return;
+        }
+
+        thread.interrupt();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessage(int what) {
+        if (handler == null) {
+            return;
+        }
+
+        Message message = handler.obtainMessage();
+        message.what = what;
+        message.sendToTarget();
     }
 
     @Override
