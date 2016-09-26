@@ -4,12 +4,14 @@ package com.darsh.multipleimageselect.helpers;
  * Created by Darshan on 5/26/2015.
  */
 public class Constants {
+    public static final int PERMISSION_REQUEST_CODE = 1000;
+    public static final int PERMISSION_GRANTED = 1001;
+    public static final int PERMISSION_DENIED = 1002;
+
     public static final int REQUEST_CODE = 2000;
 
     public static final int FETCH_STARTED = 2001;
     public static final int FETCH_COMPLETED = 2002;
-    public static final int PERMISSION_GRANTED = 2003;
-    public static final int PERMISSION_DENIED = 2004;
     public static final int ERROR = 2005;
 
     /**
