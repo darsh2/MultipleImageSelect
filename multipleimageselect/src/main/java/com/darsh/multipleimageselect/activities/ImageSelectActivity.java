@@ -116,12 +116,6 @@ public class ImageSelectActivity extends HelperActivity {
                         break;
                     }
 
-                    case Constants.PERMISSION_DENIED: {
-                        progressBar.setVisibility(View.INVISIBLE);
-                        gridView.setVisibility(View.INVISIBLE);
-                        break;
-                    }
-
                     case Constants.FETCH_STARTED: {
                         progressBar.setVisibility(View.VISIBLE);
                         gridView.setVisibility(View.INVISIBLE);
@@ -154,13 +148,13 @@ public class ImageSelectActivity extends HelperActivity {
                                 actionMode.setTitle(countSelected + " " + getString(R.string.selected));
                             }
                         }
-
                         break;
                     }
 
                     case Constants.ERROR: {
                         progressBar.setVisibility(View.INVISIBLE);
                         errorDisplay.setVisibility(View.VISIBLE);
+                        break;
                     }
 
                     default: {
@@ -184,7 +178,7 @@ public class ImageSelectActivity extends HelperActivity {
     protected void onStop() {
         super.onStop();
 
-        abortLoading();
+        stopThread();
 
         getContentResolver().unregisterContentObserver(observer);
         observer = null;
@@ -321,47 +315,20 @@ public class ImageSelectActivity extends HelperActivity {
     }
 
     private void loadImages() {
-        abortLoading();
-
-        ImageLoaderRunnable runnable = new ImageLoaderRunnable();
-        thread = new Thread(runnable);
-        thread.start();
-    }
-
-    private void abortLoading() {
-        if (thread == null) {
-            return;
-        }
-
-        if (thread.isAlive()) {
-            thread.interrupt();
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        startThread(new ImageLoaderRunnable());
     }
 
     private class ImageLoaderRunnable implements Runnable {
         @Override
         public void run() {
             android.os.Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-
-            Message message;
+            /*
+            If the adapter is null, this is first time this activity's view is
+            being shown, hence send FETCH_STARTED message to show progress bar
+            while images are loaded from phone
+             */
             if (adapter == null) {
-                message = handler.obtainMessage();
-                /*
-                If the adapter is null, this is first time this activity's view is
-                being shown, hence send FETCH_STARTED message to show progress bar
-                while images are loaded from phone
-                 */
-                message.what = Constants.FETCH_STARTED;
-                message.sendToTarget();
-            }
-
-            if (Thread.interrupted()) {
-                return;
+                sendMessage(Constants.FETCH_STARTED);
             }
 
             File file;
@@ -379,11 +346,8 @@ public class ImageSelectActivity extends HelperActivity {
 
             Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection,
                     MediaStore.Images.Media.BUCKET_DISPLAY_NAME + " =?", new String[]{ album }, MediaStore.Images.Media.DATE_ADDED);
-            
             if (cursor == null) {
-                message = handler.obtainMessage();
-                message.what = Constants.ERROR;
-                message.sendToTarget();
+                sendMessage(Constants.ERROR);
                 return;
             }
 
@@ -395,7 +359,6 @@ public class ImageSelectActivity extends HelperActivity {
              */
             int tempCountSelected = 0;
             ArrayList<Image> temp = new ArrayList<>(cursor.getCount());
-
             if (cursor.moveToLast()) {
                 do {
                     if (Thread.interrupted()) {
@@ -425,20 +388,47 @@ public class ImageSelectActivity extends HelperActivity {
             images.clear();
             images.addAll(temp);
 
-            message = handler.obtainMessage();
-            message.what = Constants.FETCH_COMPLETED;
-            message.arg1 = tempCountSelected;
-            message.sendToTarget();
-
-            Thread.interrupted();
+            sendMessage(Constants.FETCH_COMPLETED, tempCountSelected);
         }
+    }
+
+    private void startThread(Runnable runnable) {
+        stopThread();
+        thread = new Thread(runnable);
+        thread.start();
+    }
+
+    private void stopThread() {
+        if (thread == null || !thread.isAlive()) {
+            return;
+        }
+
+        thread.interrupt();
+        try {
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMessage(int what) {
+        sendMessage(what, 0);
+    }
+
+    private void sendMessage(int what, int arg1) {
+        if (handler == null) {
+            return;
+        }
+
+        Message message = handler.obtainMessage();
+        message.what = what;
+        message.arg1 = arg1;
+        message.sendToTarget();
     }
 
     @Override
     protected void permissionGranted() {
-        Message message = handler.obtainMessage();
-        message.what = Constants.PERMISSION_GRANTED;
-        message.sendToTarget();
+        sendMessage(Constants.PERMISSION_GRANTED);
     }
 
     @Override
