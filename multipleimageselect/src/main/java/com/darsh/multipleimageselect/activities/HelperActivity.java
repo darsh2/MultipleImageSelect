@@ -10,7 +10,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 
 import com.darsh.multipleimageselect.R;
@@ -20,33 +19,26 @@ import com.darsh.multipleimageselect.helpers.Constants;
  * Created by darshan on 26/9/16.
  */
 public class HelperActivity extends AppCompatActivity {
-    private static final String TAG = HelperActivity.class.getName();
-
     protected View view;
 
     private final int maxLines = 4;
     private final String[] permissions = new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE };
 
     protected void checkPermission() {
-        Log.i(TAG, "checkPermission");
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
             permissionGranted();
 
         } else {
-            Log.i(TAG, "Show dialog to a" +
-                    "sk for permission");
             ActivityCompat.requestPermissions(this, permissions, Constants.PERMISSION_REQUEST_CODE);
         }
     }
 
     private void requestPermission() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            Log.i(TAG, "Show rationale");
             showRequestPermissionRationale();
 
         } else {
-            Log.i(TAG, "Show app settings");
             showAppPermissionSettings();
         }
     }
@@ -100,7 +92,6 @@ public class HelperActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.i(TAG, requestCode + " " + grantResults.length + " " + (grantResults[0] == PackageManager.PERMISSION_GRANTED));
         if (requestCode != Constants.PERMISSION_REQUEST_CODE
                 || grantResults.length == 0
                 || grantResults[0] == PackageManager.PERMISSION_DENIED) {

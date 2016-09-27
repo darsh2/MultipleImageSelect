@@ -35,8 +35,6 @@ import java.util.HashSet;
  * Created by Darshan on 4/14/2015.
  */
 public class AlbumSelectActivity extends HelperActivity {
-    private final String TAG = AlbumSelectActivity.class.getName();
-
     private ArrayList<Album> albums;
 
     private TextView errorDisplay;

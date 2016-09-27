@@ -9,22 +9,17 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
 
         <activity android:name="com.darsh.multipleimageselect.activities.AlbumSelectActivity">
             <intent-filter>
-                <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity android:name="com.darsh.multipleimageselect.activities.ImageSelectActivity">
-            <intent-filter>
-                <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT" />
+                <category android:name="ANDROID.INTENT.CATEGORY.DEFAULT"/>
             </intent-filter>
         </activity>
     </application>

@@ -13,7 +13,7 @@
             android:theme="@style/MultipleImageSelectTheme"
             android:configChanges="orientation|screenSize">
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <activity
