@@ -1,6 +1,4 @@
 <resources>
-    <string name="app_name">Multiple Image Select</string>
-
     <string name="album_view">Select photo album</string>
     <string name="image_view">Tap to select images</string>
 
