@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="add">Agregar</string>
+    <string name="album_view">Selecciona un álbum</string>
+    <string name="app_name">Multiple Image Select</string>
+    <string name="image_view">Toca para seleccionar</string>
+    <string name="limit_exceeded">Puedes seleccionar un máximo de %d imagenes</string>
+    <string name="permission_denied">Permiso denegado</string>
+    <string name="permission_denied_albums"></string>
+    <string name="permission_force">La App requiere de permisos de almacenamiento para ver las imagenes. Pincha configuraciones para otorgarle permisos</string>
+    <string name="permission_info">La App requiere permisos de almacenamiento para ver imagenes</string>
+    <string name="permission_ok">Aceptar</string>
+    <string name="permission_settings">Configuraciones</string>
+    <string name="selected">seleccionadas</string>
+</resources>
