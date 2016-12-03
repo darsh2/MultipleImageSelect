@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
@@ -43,6 +44,8 @@ public class ImageSelectActivity extends HelperActivity {
 
     private TextView errorDisplay;
 
+    private FloatingActionButton doneButton;
+
     private ProgressBar progressBar;
     private GridView gridView;
     private CustomImageSelectAdapter adapter;
@@ -55,6 +58,7 @@ public class ImageSelectActivity extends HelperActivity {
     private ContentObserver observer;
     private Handler handler;
     private Thread thread;
+
 
     private final String[] projection = new String[]{ MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.DATA };
 
@@ -80,24 +84,34 @@ public class ImageSelectActivity extends HelperActivity {
         if (intent == null) {
             finish();
         }
+
+        actionMode = ImageSelectActivity.this.startActionMode(callback);
+
         album = intent.getStringExtra(Constants.INTENT_EXTRA_ALBUM);
 
         errorDisplay = (TextView) findViewById(R.id.text_view_error);
         errorDisplay.setVisibility(View.INVISIBLE);
+
+        doneButton = (FloatingActionButton) findViewById(R.id.done_button);
+        doneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendIntent();
+            }
+        });
 
         progressBar = (ProgressBar) findViewById(R.id.progress_bar_image_select);
         gridView = (GridView) findViewById(R.id.grid_view_image_select);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (actionMode == null) {
-                    actionMode = ImageSelectActivity.this.startActionMode(callback);
-                }
                 toggleSelection(position);
-                actionMode.setTitle(countSelected + " " + getString(R.string.selected));
-
-                if (countSelected == 0) {
-                    actionMode.finish();
+                if (countSelected > 0) {
+                    doneButton.setVisibility(View.VISIBLE);
+                    actionMode.setTitle(countSelected + " " + getString(R.string.selected));
+                } else {
+                    doneButton.setVisibility(View.GONE);
+                    actionMode.setTitle(getString(R.string.image_view));
                 }
             }
         });
@@ -253,9 +267,12 @@ public class ImageSelectActivity extends HelperActivity {
         }
 
         @Override
-        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {int i = item.getItemId();
-            if (i == R.id.menu_item_add_image) {
-                sendIntent();
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+
+            int i = item.getItemId();
+
+            if(i == R.id.menu_select_all_images) {
+                selectAll();
                 return true;
             }
             return false;
@@ -289,7 +306,26 @@ public class ImageSelectActivity extends HelperActivity {
         adapter.notifyDataSetChanged();
     }
 
+
+    private void selectAll() {
+
+        for (int i = 0, l = images.size(); i < l; i++) {
+            if(!images.get(i).isSelected && countSelected < Constants.limit) {
+                images.get(i).isSelected = true;
+                countSelected++;
+            }
+        }
+
+        if(countSelected > 0) {
+            doneButton.setVisibility(View.VISIBLE);
+        }
+
+        adapter.notifyDataSetChanged();
+    }
+
+
     private void deselectAll() {
+
         for (int i = 0, l = images.size(); i < l; i++) {
             images.get(i).isSelected = false;
         }

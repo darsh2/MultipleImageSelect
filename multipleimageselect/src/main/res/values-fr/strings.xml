@@ -12,4 +12,5 @@
     <string name="permission_denied">Permission refusée!</string>
     <string name="permission_denied_albums">Veuillez permettre l\'accès aux photos, médias et fichiers sur votre appareil pour afficher les albums</string>
     <string name="permission_denied_images">Veuillez permettre l\'accès aux photos, médias et fichiers sur votre appareil pour afficher les images</string>
+    <string name="permission_force"></string>
 </resources>
