@@ -84,6 +84,9 @@ public class ImageSelectActivity extends HelperActivity {
         if (intent == null) {
             finish();
         }
+
+        actionMode = ImageSelectActivity.this.startActionMode(callback);
+
         album = intent.getStringExtra(Constants.INTENT_EXTRA_ALBUM);
 
         errorDisplay = (TextView) findViewById(R.id.text_view_error);
@@ -102,17 +105,13 @@ public class ImageSelectActivity extends HelperActivity {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (actionMode == null) {
-                    actionMode = ImageSelectActivity.this.startActionMode(callback);
-                    doneButton.setVisibility(View.VISIBLE);
-
-                }
                 toggleSelection(position);
-                actionMode.setTitle(countSelected + " " + getString(R.string.selected));
-
-                if (countSelected == 0) {
+                if (countSelected > 0) {
+                    doneButton.setVisibility(View.VISIBLE);
+                    actionMode.setTitle(countSelected + " " + getString(R.string.selected));
+                } else {
                     doneButton.setVisibility(View.GONE);
-                    actionMode.finish();
+                    actionMode.setTitle(getString(R.string.image_view));
                 }
             }
         });
@@ -311,11 +310,16 @@ public class ImageSelectActivity extends HelperActivity {
     private void selectAll() {
 
         for (int i = 0, l = images.size(); i < l; i++) {
-            if(!images.get(i).isSelected) {
+            if(!images.get(i).isSelected && countSelected < Constants.limit) {
                 images.get(i).isSelected = true;
                 countSelected++;
             }
         }
+
+        if(countSelected > 0) {
+            doneButton.setVisibility(View.VISIBLE);
+        }
+
         adapter.notifyDataSetChanged();
     }
 
