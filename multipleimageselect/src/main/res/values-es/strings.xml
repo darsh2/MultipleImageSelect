@@ -11,5 +11,6 @@
     <string name="permission_info">La App requiere permisos de almacenamiento para ver imagenes</string>
     <string name="permission_ok">Aceptar</string>
     <string name="permission_settings">Configuraciones</string>
-    <string name="selected">seleccionadas</string>
+    <string name="selected">Seleccionadas</string>
+    <string name="select_all_label">Todas</string>
 </resources>
