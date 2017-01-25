@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="album_view">Selecione o álbum</string>
+    <string name="app_name">Multiple Image Select</string>
+
+    <string name="album_view">Selecione o álbum de fotos</string>
     <string name="image_view">Toque para selecionar imagens</string>
 
-    <string name="add">ADICIONAR</string>
+    <string name="add">Adicionar</string>
     <string name="selected">selecionado</string>
     <string name="limit_exceeded">É possível selecionar no máximo %d imagens</string>
 
-    <string name="error_null_cursor">Ops, ocorreu um erro!</string>
-
-    <string name="permission_info">O aplicativo precisa de permissão em Armazenamento para visualizar imagens.</string>
-    <string name="permission_force">O aplicativo precisa de permissão em Armazenamento para visualizar imagens. Pressione "Configurações" e vá até "Permissões" para alterar as permissões.</string>
-    <string name="permission_ok">OK</string>
-    <string name="permission_settings">Configurações</string>
-    <string name="permission_package">pacote</string>
-
+    <string name="permission_denied">Permissão negada!</string>
+    <string name="permission_denied_albums">Por favor, permita o acesso à fotos, mídias e arquivos em seu dispositivo para visualizar álbuns de fotos</string>
+    <string name="permission_denied_images">Por favor, permita o acesso à fotos, mídias e arquivos em seu dispositivo para visualizar imagens.</string>
 </resources>
