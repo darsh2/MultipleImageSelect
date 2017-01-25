@@ -382,9 +382,7 @@ public class ImageSelectActivity extends HelperActivity {
             }
             cursor.close();
 
-            if (images == null) {
-                images = new ArrayList<>();
-            }
+            images = new ArrayList<>();
             images.clear();
             images.addAll(temp);
 
