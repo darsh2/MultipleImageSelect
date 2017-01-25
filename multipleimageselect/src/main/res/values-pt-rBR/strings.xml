@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Multiple Image Select</string>
-
     <string name="album_view">Selecione o álbum de fotos</string>
     <string name="image_view">Toque para selecionar imagens</string>
 
