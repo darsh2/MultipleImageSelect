@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -24,14 +25,25 @@ public class HelperActivity extends AppCompatActivity {
     private final int maxLines = 4;
     private final String[] permissions = new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE };
 
-    protected void checkPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            permissionGranted();
+    protected boolean checkPermission() {
+        if (!isMarshmallow()) {
+            return false;
+        }else {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                permissionGranted();
 
-        } else {
-            ActivityCompat.requestPermissions(this, permissions, Constants.PERMISSION_REQUEST_CODE);
+            } else {
+                ActivityCompat.requestPermissions(this, permissions, Constants.PERMISSION_REQUEST_CODE);
+            }
+            return true;
         }
+    }
+
+    // EudesSilva: BugFix: #24
+    // verify if version android is 6 or hight
+    private boolean isMarshmallow(){
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
     private void requestPermission() {

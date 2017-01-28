@@ -171,7 +171,10 @@ public class ImageSelectActivity extends HelperActivity {
         };
         getContentResolver().registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, false, observer);
 
-        checkPermission();
+        // EudesSilva: BugFix: #24
+        if( !checkPermission() ){  // call direct functions in android versions <= 6
+            loadImages();
+        }
     }
 
     @Override
