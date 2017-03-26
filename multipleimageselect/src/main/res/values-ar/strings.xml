@@ -1,0 +1,18 @@
+<resources>
+    <string name="album_view">اختر صورة من الالبوم</string>
+    <string name="image_view">انقر لتحديد الصور</string>
+
+    <string name="add">إضافة</string>
+    <string name="selected">محددة</string>
+    <string name="limit_exceeded">الحد الأقص من الصور هو %d</string>
+
+    <string name="error_null_cursor">لقد حدث خطأ ما!</string>
+
+    <!--Request Permission-->
+    <string name="permission_info">يتطلب التطبيق إذن للتخزين لعرض الصور.</string>
+    <string name="permission_force">يتطلب التطبيق إذن للتخزين لعرض الصور. انقر على الإعدادات وانتقل إلى الأذونات لمنح الإذن.</string>
+    <string name="permission_ok">تمام</string>
+    <string name="permission_settings">الإعدادات</string>
+    <string name="permission_package">المجلد</string>
+
+</resources>
