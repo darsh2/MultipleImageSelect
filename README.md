@@ -1,4 +1,4 @@
-#MultipleImageSelect
+# MultipleImageSelect
 
 ![Alt text](/screenshots/mis.gif)
 
@@ -7,7 +7,7 @@ album (buckets) chooser and then images in selected album. Can limit the number 
 can be selected. Can be used in apps with APK 11 onwards.
 
 Sample app can be found [here](https://github.com/darsh2/MultipleImageSelect/tree/master/sample) 
-#Usage
+# Usage
 Include this library in your project using gradle (thanks to [JitPack.io](https://github.com/jitpack-io)).
 
 For stable build:
@@ -63,7 +63,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     ...  
 }
 ```
-#Custom Styles
+# Custom Styles
 ![Alt text](/screenshots/misCC.gif)
 
 1. To change the color of UI elements, in colors.xml file, override the following attributes with the desired colors. Example:
@@ -126,18 +126,18 @@ Add ```tools:replace="android:theme"``` to AlbumSelectActivity and ImageSelectAc
     </intent-filter>
   </activity>
 ```
-#Screenshots
+# Screenshots
 Can be found [here](https://github.com/darsh2/MultipleImageSelect/tree/master/screenshots)
-#Apps using this
+# Apps using this
 [Gallery Organizer](https://play.google.com/store/apps/details?id=com.darsh.galleryorganizer2)
 
 [PictureJam Collage Maker](https://play.google.com/store/apps/details?id=xyz.pichancer.picturejam.free)
-#Similar Projects
+# Similar Projects
 Similar libraries can be found [here](https://android-arsenal.com/tag/157)
-#Acknowledgements
+# Acknowledgements
 This library makes use of [Glide](https://github.com/bumptech/glide) by Bump Technologies.
 (Thanks to [WindSekirun](https://github.com/WindSekirun) for suggesting Glide)
-#License
+# License
 ```license
 Copyright 2015 Darshan Dorai
 
