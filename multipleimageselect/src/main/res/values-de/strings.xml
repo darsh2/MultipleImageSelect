@@ -1,15 +1,26 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Multiple Image Select</string>
 
-    <string name="album_view">Fotoalbum auswählen</string>
-    <string name="image_view">Tippen um Bilder auszuwählen</string>
+    <string name="album_view">Select photo album</string>
+    <string name="image_view">Tap to select images</string>
 
-    <string name="add">HINZUFÜGEN</string>
-    <string name="selected">ausgewählt</string>
-    <string name="limit_exceeded">Kann maximal %d Bilder auswählen</string>
+    <string name="add">ADD</string>
+    <string name="selected">selected</string>
+    <string name="limit_exceeded">Can select a maximum of %d images</string>
 
-    <string name="permission_denied">Zugriff verweigert!</string>
-    <string name="permission_denied_albums">Zugriff auf Fotos, Medien und Dateien auf dem Gerät erlauben, um die Alben anzuzeigen</string>
-    <string name="permission_denied_images">Zugriff auf Fotos, Medien und Dateien auf dem Gerät erlauben, um die Bilder anzuzeigen</string>
+    <string name="error_null_cursor">Oops, something went wrong!</string>
+
+    <!--Request Permission-->
+    <string name="permission_info">App requires permission to Storage to view images.</string>
+    <string name="permission_force">App requires permission to Storage to view images. Tap Settings and go to Permissions to grant permission.</string>
+    <string name="permission_ok">OK</string>
+    <string name="permission_settings">Settings</string>
+    <string name="permission_package">package</string>
+
+
+
+    <string name="permission_denied">Access denied!</string>
+    <string name="permission_denied_albums">Allow access to photos, media and files on the device to view the albums</string>
+    <string name="permission_denied_images">Allow access to photos, media and files on the device to view the images</string>
+
 </resources>
